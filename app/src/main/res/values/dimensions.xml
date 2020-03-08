@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Progress Bar values -->
+    <dimen name="progressBarWidth">170dp</dimen>
+    <dimen name="progressBarHeight">20dp</dimen>
+    <dimen name="progressBarMarginBottom">340dp</dimen>
+    <dimen name="progressBarConstraintHorizontalBias">0.496</dimen>
+
+    <!-- Login Button values -->
+    <dimen name="loginButtonWidth">100dp</dimen>
+    <dimen name="loginButtonMarginStart">30dp</dimen>
+    <dimen name="cancelButtonMarginStart">180dp</dimen>
+    <dimen name="loginButtonMarginTop">35dp</dimen>
+    <dimen name="loginToolbarElevation">4dp</dimen>
+
+    <!-- Login Edit Text values -->
+    <dimen name="loginEditTextWidth">250dp</dimen>
+    <dimen name="loginEditTextHeight">50dp</dimen>
+    <dimen name="loginEditTextMarginStart">50dp</dimen>
+    <dimen name="loginEditTextMarginTop">18dp</dimen>
+
+    <!-- New login design values -->
+    <dimen name="secondaryLayoutWidth">300dp</dimen>
+    <dimen name="secondaryLayoutHeight">500dp</dimen>
+    <dimen name="editTextCredentialsWidth">250dp</dimen>
+    <dimen name="editTextCredentialsHeight">50dp</dimen>
+    <dimen name="usernameEditTextMarginBottom">244dp</dimen>
+    <dimen name="passwordEditTextMarginTop">25dp</dimen>
+    <dimen name="createAccountTextWidth">230dp</dimen>
+    <dimen name="createAccountTextMarginTop">20dp</dimen>
+    <dimen name="newLoginButtonHeight">35dp</dimen>
+    <dimen name="newLoginButtonWidth">100dp</dimen>
+    <dimen name="loginElevation">10dp</dimen>
+    <dimen name="marginTopLoginButton">15dp</dimen>
+    <dimen name="imageBorder">6dp</dimen>
+    <dimen name="circleDimensions">135dp</dimen>
+    <dimen name="shadowBottom">1.5dp</dimen>
+    <dimen name="shadowRadius">20dip</dimen>
+    <dimen name="roundedButtonCornerRadius">200dp</dimen>
+    <dimen name="roundedCornerBlueRadius">30dp</dimen>
+    <dimen name="roundedEditTextRadius">15dp</dimen>
+    <dimen name="distanceEditText">10dp</dimen>
+</resources>

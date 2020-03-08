@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="progressBlue">#216583</color>
+
+    <color name="bottomNavBackground">#00818A</color>
+    <color name="shadowColor">#3f3f3f</color>
+    <color name="fadedTextColor">#99000000</color>
+
+    <color name="loginEditTextGrey">#C4C4C4</color>
+    <color name="loginWindowBlue">#CC00818A</color>
+    <color name="loginCreateAccountText">#C7C2C0</color>
+    <color name="registrationLightBlue">#00818A</color>
+    <color name="registrationDarkBlue">#216583</color>
+    <color name="errorMessageColor">#ccff0000</color>
+
+    <color name="buttonsGrey">#ccc4c4c4</color>
+    <color name="buttonsPushGrey">#c4c4c4</color>
+</resources>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_airplane"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/secondaryLayoutWidth"
+        android:layout_height="@dimen/secondaryLayoutHeight"
+        android:background="@drawable/rounded_corner_blue"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent">
+
+        <EditText
+            android:id="@+id/emailEditTextRegister"
+            android:layout_width="200dp"
+            android:layout_height="42dp"
+            android:layout_marginTop="107dp"
+            android:background="@drawable/rounded_corner_grey"
+            android:gravity="center"
+            android:hint="Email"
+            android:textColor="#99000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/passwordEditTextRegister"
+            android:layout_width="200dp"
+            android:layout_height="42dp"
+            android:layout_marginTop="46dp"
+            android:background="@drawable/rounded_corner_grey"
+            android:gravity="center"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:textColor="#99000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emailEditTextRegister" />
+
+        <EditText
+            android:id="@+id/confirmPasswordEditTextRegister"
+            android:layout_width="200dp"
+            android:layout_height="42dp"
+            android:layout_marginTop="46dp"
+            android:background="@drawable/rounded_corner_grey"
+            android:gravity="center"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:textColor="#99000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/passwordEditTextRegister" />
+
+        <CheckBox
+            android:id="@+id/terms"
+            android:layout_width="wrap_content"
+            android:layout_height="23dp"
+            android:layout_marginTop="14dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEditTextRegister"
+            android:button="@drawable/check_selector"
+            android:text=" I accept the terms and conditions"
+            android:textColor="@drawable/check_text_color_selector"/>
+
+
+        <TextView
+            android:id="@+id/loginAccount"
+            android:layout_width="227dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="29dp"
+            android:gravity="center"
+            android:text="You have an account? Login!"
+            android:textColor="@color/fadedTextColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/terms" />
+
+        <Button
+            android:id="@+id/register_button"
+            android:layout_width="@dimen/newLoginButtonWidth"
+            android:layout_height="@dimen/newLoginButtonHeight"
+            android:layout_marginTop="23dp"
+            android:background="@drawable/rounded_button_with_shadow"
+            android:elevation="@dimen/loginElevation"
+            android:text="Register"
+            android:textColor="@color/fadedTextColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginAccount" />
+
+        <TextView
+            android:id="@+id/registrationErrorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/createAccountTextMarginTop"
+            android:textColor="@color/errorMessageColor"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/emailEditTextRegister"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
