@@ -10,7 +10,7 @@
         android:icon="@drawable/ic_future_bottom_nav"
         android:title="@string/future_trips" />
     <item
-        android:id="@+id/myAccountFragment"
+        android:id="@+id/accountFragment"
         android:icon="@drawable/ic_account_bottom_nav"
         android:title="@string/my_account" />
 

@@ -21,37 +21,50 @@
             android:id="@+id/emailEditTextRegister"
             android:layout_width="200dp"
             android:layout_height="42dp"
-            android:layout_marginTop="107dp"
+            android:layout_marginTop="50dp"
             android:background="@drawable/rounded_corner_grey"
             android:gravity="center"
-            android:hint="Email"
+            android:hint="@string/email"
             android:textColor="#99000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/passwordEditTextRegister"
+            android:id="@+id/userNameEditText"
             android:layout_width="200dp"
             android:layout_height="42dp"
-            android:layout_marginTop="46dp"
+            android:layout_marginTop="40dp"
             android:background="@drawable/rounded_corner_grey"
             android:gravity="center"
-            android:hint="Password"
-            android:inputType="textPassword"
+            android:hint="@string/username"
             android:textColor="#99000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/emailEditTextRegister" />
 
         <EditText
+            android:id="@+id/passwordEditTextRegister"
+            android:layout_width="200dp"
+            android:layout_height="42dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/rounded_corner_grey"
+            android:gravity="center"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:textColor="#99000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/userNameEditText" />
+
+        <EditText
             android:id="@+id/confirmPasswordEditTextRegister"
             android:layout_width="200dp"
             android:layout_height="42dp"
-            android:layout_marginTop="46dp"
+            android:layout_marginTop="40dp"
             android:background="@drawable/rounded_corner_grey"
             android:gravity="center"
-            android:hint="Confirm Password"
+            android:hint="@string/confirm_password"
             android:inputType="textPassword"
             android:textColor="#99000000"
             app:layout_constraintEnd_toEndOf="parent"
@@ -63,12 +76,22 @@
             android:layout_width="wrap_content"
             android:layout_height="23dp"
             android:layout_marginTop="14dp"
+            android:layout_marginEnd="5dp"
+            android:button="@drawable/check_selector"
+            app:layout_constraintEnd_toStartOf="@id/terms_text"
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEditTextRegister" />
+
+        <TextView
+            android:id="@+id/terms_text"
+            android:layout_width="wrap_content"
+            android:layout_height="23dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginStart="30dp"
+            android:text="@string/i_accept_the_terms_and_conditions"
+            android:textColor="@drawable/check_text_color_selector"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEditTextRegister"
-            android:button="@drawable/check_selector"
-            android:text=" I accept the terms and conditions"
-            android:textColor="@drawable/check_text_color_selector"/>
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEditTextRegister" />
 
 
         <TextView
@@ -77,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="29dp"
             android:gravity="center"
-            android:text="You have an account? Login!"
+            android:text="@string/you_have_an_account_login"
             android:textColor="@color/fadedTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -90,22 +113,11 @@
             android:layout_marginTop="23dp"
             android:background="@drawable/rounded_button_with_shadow"
             android:elevation="@dimen/loginElevation"
-            android:text="Register"
+            android:text="@string/register"
             android:textColor="@color/fadedTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loginAccount" />
-
-        <TextView
-            android:id="@+id/registrationErrorMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/createAccountTextMarginTop"
-            android:textColor="@color/errorMessageColor"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@id/emailEditTextRegister"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

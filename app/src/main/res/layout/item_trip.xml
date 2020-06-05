@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/trip_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/tripHeight"
+    android:layout_margin="15dp">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/item_trip_image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:riv_mutate_background="true"
+        app:riv_corner_radius_top_left="50dip"
+        app:riv_corner_radius_top_right="50dip"
+        android:background="@drawable/item_trip_image_corner"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/default_image_of_a_trip_or_added_by_user"
+        android:src="@drawable/background_airplane"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/trip_details"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@drawable/item_trip_corner"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/item_trip_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="15dp"
+            android:text="@string/my_trip"
+            android:textColor="#000"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/item_trip_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
+            android:lines="3"
+            android:text="@string/description_in_a_few_lines" />
+
+        <TextView
+            android:id="@+id/item_trip_organizer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
+            android:text="@string/organizer"
+            android:textColor="#000"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

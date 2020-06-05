@@ -11,6 +11,9 @@
         <action
             android:id="@+id/action_loginFragment_to_registrationFragment"
             app:destination="@id/registrationFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_futureTripsFragment"
+            app:destination="@id/futureTripsFragment" />
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
@@ -19,5 +22,69 @@
         <action
             android:id="@+id/action_registrationFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_registrationFragment_to_termsFragment"
+            app:destination="@id/termsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/futureTripsFragment"
+        android:name="com.example.licenta.view.fragment.FutureTripsFragment"
+        android:label="FutureTripsFragment" >
+        <action
+            android:id="@+id/action_futureTripsFragment_to_createNewTripFragment"
+            app:destination="@id/createNewTripFragment" />
+        <action
+            android:id="@+id/action_futureTripsFragment_to_tripDetailsFragment"
+            app:destination="@id/tripDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createNewTripFragment"
+        android:name="com.example.licenta.view.fragment.CreateNewTripFragment"
+        android:label="CreateNewTripFragment" >
+        <action
+            android:id="@+id/action_createNewTripFragment_to_futureTripsFragment"
+            app:destination="@id/futureTripsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/accountFragment"
+        android:name="com.example.licenta.view.fragment.AccountFragment"
+        android:label="AccountFragment" >
+        <action
+            android:id="@+id/action_accountFragment_to_termsFragment"
+            app:destination="@id/termsFragment" />
+        <action
+            android:id="@+id/action_accountFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_accountFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/termsFragment"
+        android:name="com.example.licenta.view.fragment.TermsFragment"
+        android:label="TermsFragment" >
+        <action
+            android:id="@+id/action_termsFragment_to_registrationFragment"
+            app:destination="@id/registrationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.example.licenta.view.fragment.ChangePasswordFragment"
+        android:label="ChangePasswordFragment" >
+        <action
+            android:id="@+id/action_changePasswordFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pastTripsFragment"
+        android:name="com.example.licenta.view.fragment.PastTripsFragment"
+        android:label="PastTripsFragment" >
+        <action
+            android:id="@+id/action_pastTripsFragment_to_tripDetailsFragment"
+            app:destination="@id/tripDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/tripDetailsFragment"
+        android:name="com.example.licenta.view.fragment.TripDetailsFragment"
+        android:label="TripDetailsFragment" />
 </navigation>

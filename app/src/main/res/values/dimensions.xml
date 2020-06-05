@@ -40,4 +40,8 @@
     <dimen name="roundedCornerBlueRadius">30dp</dimen>
     <dimen name="roundedEditTextRadius">15dp</dimen>
     <dimen name="distanceEditText">10dp</dimen>
+
+    <!-- Trip design values -->
+    <dimen name="tripWidth">300dp</dimen>
+    <dimen name="tripHeight">300dp</dimen>
 </resources>
