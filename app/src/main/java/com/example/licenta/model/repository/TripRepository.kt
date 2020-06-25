@@ -2,13 +2,14 @@ package com.example.licenta.model.repository
 
 import android.content.Context
 import android.location.Geocoder
+import android.location.Location
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.example.licenta.Utils.ACTIVE
 import com.example.licenta.Utils.ADDRESS
 import com.example.licenta.Utils.DATE
 import com.example.licenta.Utils.DESCRIPTION
-import com.example.licenta.Utils.LAT
-import com.example.licenta.Utils.LNG
+import com.example.licenta.Utils.DONE
 import com.example.licenta.Utils.LOCATION
 import com.example.licenta.Utils.ORGANIZER
 import com.example.licenta.Utils.PARTICIPANT
@@ -16,135 +17,198 @@ import com.example.licenta.Utils.PARTICIPANTS
 import com.example.licenta.Utils.TAG
 import com.example.licenta.Utils.TITLE
 import com.example.licenta.Utils.TRIPS
+import com.example.licenta.Utils.USERNAME
 import com.example.licenta.Utils.USERS
 import com.example.licenta.Utils.username
 import com.example.licenta.model.GenericCallback
 import com.example.licenta.model.Trip
 import com.example.licenta.model.TripState
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.example.licenta.model.User
+import com.firebase.geofire.GeoFire
+import com.firebase.geofire.GeoLocation
+import com.firebase.geofire.LocationCallback
+import com.google.firebase.database.*
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
-
 
 class TripRepository {
     private val firebaseReference = FirebaseDatabase.getInstance().reference
+    private lateinit var childEventListener: ChildEventListener
 
-    fun getFutureOrganizedTripsFirebase(genericCallback: GenericCallback<List<Trip>>) {
-        val tripList: ArrayList<Trip> = ArrayList()
-        FirebaseDatabase.getInstance().reference.child(TRIPS).orderByChild(ORGANIZER)
-            .equalTo(username)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(p0: DataSnapshot) {
-                    val trips: MutableList<Trip> = mutableListOf()
-                    p0.children.mapNotNullTo(trips) {
-                        it.getValue(Trip::class.java)
+    fun getFutureTripsFirebase(genericCallback: GenericCallback<List<Trip>>) {
+        val tripsList: MutableList<Trip> = mutableListOf()
+        childEventListener = object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                val trip = dataSnapshot.getValue(Trip::class.java)
+                trip?.id = dataSnapshot.key!!
+                var isParticipant = false
+                trip?.participants?.forEach { it2 ->
+                    if (it2.username == username) isParticipant = true
+                }
+                if (TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) >= 0 && !trip.done && (trip.organizer.username == username || isParticipant)) {
+                    tripsList.add(trip)
+                    genericCallback.onResponseReady(tripsList.toList())
+                }
+            }
+
+            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.key)
+
+                val trip = dataSnapshot.getValue(Trip::class.java)!!
+                trip.id = dataSnapshot.key!!
+                var isParticipant = false
+                trip.participants.forEach { it2 ->
+                    if (it2.username == username) isParticipant = true
+                }
+                if (TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) >= 0 && !trip.done && (trip.organizer.username == username || isParticipant)) {
+                    tripsList.add(trip)
+                    genericCallback.onResponseReady(tripsList.toList())
+                } else {
+                    var myIndex = -1
+                    tripsList.forEachIndexed { index, it ->
+                        if (it.id == trip.id) {
+                            if (TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) >= 0 && !trip.done && (trip.organizer.username == username || isParticipant)) {
+                                tripsList[index] = trip
+                                genericCallback.onResponseReady(tripsList.toList())
+                            } else myIndex = index
+                            return@forEachIndexed
+                        }
                     }
-                    tripList.addAll(trips.filter {
-                        TimeUnit.MILLISECONDS.toDays(it.date - System.currentTimeMillis()) >= 0
-                    })
-                    genericCallback.onResponseReady(tripList)
+                    if (myIndex != -1) {
+                        tripsList.removeAt(myIndex)
+                        genericCallback.onResponseReady(tripsList.toList())
+                    }
                 }
+            }
 
-                override fun onCancelled(p0: DatabaseError) {
-                    Log.d(TAG, "onCancelled: ${p0.message}")
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+                Log.d(TAG, "onChildRemoved:" + dataSnapshot.key)
+
+                val id = dataSnapshot.key!!
+                tripsList.forEachIndexed { index, it ->
+                    if (it.id == id) {
+                        tripsList.removeAt(index)
+                        genericCallback.onResponseReady(tripsList.toList())
+                    }
                 }
-            })
+            }
+
+            override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.key)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e(TAG, "postMessages:onCancelled", databaseError.toException())
+            }
+        }
+        firebaseReference.child(TRIPS).addChildEventListener(childEventListener)
     }
 
-    fun getFutureParticipantTripsFirebase(genericCallback: GenericCallback<List<Trip>>) {
-        val tripList: MutableList<Trip> = mutableListOf()
-        Log.d(TAG, "getFutureParticipantTripsFirebase, 1st")
-        firebaseReference.child(USERS).child(username).child(PARTICIPANT)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(p0: DataSnapshot) {
-                    Log.d(TAG, "getFutureParticipantTripsFirebase, 2nd")
-                    p0.children.forEach {
-                        firebaseReference.child(TRIPS).child(it.key!!)
-                            .addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(p1: DataSnapshot) {
-                                    Log.d(TAG, "getFutureParticipantTripsFirebase, 3rd")
-                                    val trip = p1.getValue(Trip::class.java)
-                                    if (TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) >= 0) {
-                                        tripList.add(trip)
-                                        genericCallback.onResponseReady(tripList)
-                                    }
-                                }
+    fun getPastTripsFirebase(genericCallback: GenericCallback<List<Trip>>) {
+        val tripsList: MutableList<Trip> = mutableListOf()
+        childEventListener = object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                val trip = dataSnapshot.getValue(Trip::class.java)
+                trip?.id = dataSnapshot.key!!
+                var isParticipant = false
+                trip?.participants?.forEach { it2 ->
+                    if (it2.username == username) isParticipant = true
+                }
+                if (((TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) < 0 || trip.done) && (trip.organizer.username == username || isParticipant))) {
+                    tripsList.add(trip)
+                }
+                genericCallback.onResponseReady(tripsList.toList())
+            }
 
-                                override fun onCancelled(p1: DatabaseError) {
-                                    Log.d(
-                                        TAG,
-                                        "p1, onCancelled, getFutureParticipantTripsFirebase: " + p1.message
-                                    )
-                                }
-                            })
+            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.key)
+
+                val trip = dataSnapshot.getValue(Trip::class.java)!!
+                trip.id = dataSnapshot.key!!
+                var isParticipant = false
+                trip.participants.forEach { it2 ->
+                    if (it2.username == username) isParticipant = true
+                }
+                if ((TimeUnit.MILLISECONDS.toDays(trip.date - System.currentTimeMillis()) < 0 || trip.done) && (trip.organizer.username == username || isParticipant)) {
+                    tripsList.add(trip)
+                    genericCallback.onResponseReady(tripsList.toList())
+                } else {
+                    var myIndex = -1
+                    tripsList.forEachIndexed { index, it ->
+                        if (it.id == trip.id) {
+                            if ((TimeUnit.MILLISECONDS.toDays(trip.date - System.currentTimeMillis()) < 0 || trip.done) && (trip.organizer.username == username || isParticipant)) {
+                                tripsList[index] = trip
+                                genericCallback.onResponseReady(tripsList.toList())
+                            } else myIndex = index
+                            return@forEachIndexed
+                        }
+                    }
+                    if (myIndex != -1) {
+                        tripsList.removeAt(myIndex)
+                        genericCallback.onResponseReady(tripsList.toList())
                     }
                 }
+            }
 
-                override fun onCancelled(p0: DatabaseError) {
-                    Log.d(TAG, "p0, onCancelled, getFutureParticipantTripsFirebase: " + p0.message)
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+                Log.d(TAG, "onChildRemoved:" + dataSnapshot.key)
+
+                val id = dataSnapshot.key!!
+                tripsList.forEachIndexed { index, it ->
+                    if (it.id == id) {
+                        tripsList.removeAt(index)
+                        genericCallback.onResponseReady(tripsList.toList())
+                    }
                 }
-            })
+            }
+
+            override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.key)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e(TAG, "postMessages:onCancelled", databaseError.toException())
+            }
+        }
+        firebaseReference.child(TRIPS).addChildEventListener(childEventListener)
     }
 
-    fun getPastOrganizedTripsFirebase(genericCallback: GenericCallback<List<Trip>>) {
-        val tripList: ArrayList<Trip> = ArrayList()
-        FirebaseDatabase.getInstance().reference.child(TRIPS).orderByChild(ORGANIZER)
-            .equalTo(username)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(p0: DataSnapshot) {
-                    val trips: MutableList<Trip> = mutableListOf()
-                    p0.children.mapNotNullTo(trips) {
-                        it.getValue(Trip::class.java)
+    fun getTripFirebase(genericCallback: GenericCallback<Trip>, tripId: String) {
+        val tripRef = firebaseReference.child(TRIPS).child(tripId)
+        tripRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                val trip = p0.getValue(Trip::class.java)
+                trip?.id = tripId
+                val geoFire = GeoFire(tripRef)
+                geoFire.getLocation(tripId, object : LocationCallback {
+                    override fun onLocationResult(
+                        key: String?,
+                        location: GeoLocation?
+                    ) {
+                        if (location != null) {
+                            trip?.location = location
+                            genericCallback.onResponseReady(trip!!)
+                        } else {
+                            Log.e(
+                                TAG,
+                                "There is no location for key %s in GeoFire $key"
+                            )
+                        }
                     }
-                    tripList.addAll(trips.filter {
-                        TimeUnit.MILLISECONDS.toDays(it.date - System.currentTimeMillis()) < 0
-                    })
-                    genericCallback.onResponseReady(tripList)
-                }
 
-                override fun onCancelled(p0: DatabaseError) {
-                    Log.d(TAG, "onCancelled: ${p0.message}")
-                }
-            })
-    }
-
-    fun getPastParticipantTripsFirebase(genericCallback: GenericCallback<List<Trip>>) {
-        val tripList: MutableList<Trip> = mutableListOf()
-        Log.d(TAG, "getPastParticipantTripsFirebase, 1st")
-        firebaseReference.child(USERS).child(username).child(PARTICIPANT)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(p0: DataSnapshot) {
-                    Log.d(TAG, "getPastParticipantTripsFirebase, 2nd")
-                    p0.children.forEach {
-                        firebaseReference.child(TRIPS).child(it.key!!)
-                            .addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(p1: DataSnapshot) {
-                                    Log.d(TAG, "getPastParticipantTripsFirebase, 3rd")
-                                    val trip = p1.getValue(Trip::class.java)
-                                    if (TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) < 0) {
-                                        tripList.add(trip)
-                                        genericCallback.onResponseReady(tripList)
-                                    }
-                                }
-
-                                override fun onCancelled(p1: DatabaseError) {
-                                    Log.d(
-                                        TAG,
-                                        "p1, onCancelled, getPastParticipantTripsFirebase: " + p1.message
-                                    )
-                                }
-                            })
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e(
+                            TAG,
+                            "There was an error getting the GeoFire location: $databaseError"
+                        )
                     }
-                }
+                })
+            }
 
-                override fun onCancelled(p0: DatabaseError) {
-                    Log.d(TAG, "p0, onCancelled, getPastParticipantTripsFirebase: " + p0.message)
-                }
-            })
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(TAG, "p0, onCancelled, getTripFirebase: " + p0.message)
+            }
+        })
     }
 
     fun checkIfUserExistsFirebase(user: String): MutableLiveData<Boolean> {
@@ -176,37 +240,44 @@ class TripRepository {
 
         if (addressList.isNotEmpty()) {
             val address = addressList[0]
-            trip.location.latitude = address.latitude
-            trip.location.longitude = address.longitude
-            if ((trip.participants.contains(username))) {
+            trip.location = GeoLocation(address.latitude, address.longitude)
+            if ((trip.participants.contains(User(username)))) {
                 tripStateList.add(
                     TripState.PART_HAS_ORGANIZER
                 )
             } else {
-                trip.organizer = username
+                trip.organizer = User(username)
 
                 val userRef = firebaseReference.child(USERS)
                 val tripRef =
                     firebaseReference.child(TRIPS)
                         .push()
-                tripRef.child(ORGANIZER).setValue(username)
+                tripRef.child(ORGANIZER).child(
+                    USERNAME
+                ).setValue(username)
                 tripRef.child(TITLE).setValue(trip.title)
-                tripRef.child(LOCATION).child(LAT)
-                    .setValue(trip.location.latitude)
-                tripRef.child(LOCATION).child(LNG)
-                    .setValue(trip.location.longitude)
                 tripRef.child(ADDRESS).setValue(trip.address)
                 tripRef.child(DATE).setValue(trip.date)
                 tripRef.child(DESCRIPTION)
                     .setValue(trip.description)
-                tripRef.child(PARTICIPANTS)
-                    .setValue(trip.participants)
+                tripRef.child(DONE).setValue(false)
+                val tripParticipantsRef = tripRef.child(PARTICIPANTS)
+                trip.participants.forEachIndexed { index, it ->
+                    tripParticipantsRef.child(index.toString()).child(
+                        USERNAME
+                    ).setValue(it.username)
+                }
                 val id = tripRef.key
+                val geoFire = GeoFire(tripRef)
+                geoFire.setLocation(
+                    id,
+                    GeoLocation(trip.location.latitude, trip.location.longitude)
+                )
                 userRef.child(username).child(ORGANIZER)
                     .child(id!!)
                     .setValue(true)
                 trip.participants.forEach {
-                    userRef.child(it)
+                    userRef.child(it.username)
                         .child(PARTICIPANT).child(id)
                         .setValue(true)
                 }
@@ -218,6 +289,88 @@ class TripRepository {
         addTripToFirebaseMutableLiveData.value = tripStateList
 
         return addTripToFirebaseMutableLiveData
+    }
+
+    fun startTrip(tripId: String) {
+        firebaseReference.child(TRIPS).child(tripId).child(ACTIVE).setValue(true)
+    }
+
+    fun stopTrip(tripId: String, genericCallback: GenericCallback<Boolean>) {
+        firebaseReference.child(TRIPS).child(tripId).child(ACTIVE).setValue(false)
+        firebaseReference.child(TRIPS).child(tripId).child(DONE).setValue(true)
+        genericCallback.onResponseReady(true)
+    }
+
+    fun updateLocation(
+        tripId: String,
+        location: Location,
+        organizer: Boolean,
+        tripParticipantIndex: Int
+    ) {
+        if (organizer) {
+            val organizerRef = firebaseReference.child(TRIPS).child(tripId).child(ORGANIZER)
+            val geoFire = GeoFire(organizerRef)
+            geoFire.setLocation(
+                LOCATION,
+                GeoLocation(location.latitude, location.longitude)
+            )
+        } else {
+            val participantRef = firebaseReference.child(TRIPS).child(tripId).child(PARTICIPANTS)
+                .child(tripParticipantIndex.toString())
+            val geoFire = GeoFire(participantRef)
+            geoFire.setLocation(
+                LOCATION,
+                GeoLocation(location.latitude, location.longitude)
+            )
+        }
+    }
+
+    fun getTripParticipantFirebase(tripId: String, genericCallback: GenericCallback<List<User>>) {
+        val participantsList: MutableList<User> = mutableListOf()
+        val tripRef = firebaseReference.child(TRIPS).child(tripId).child(PARTICIPANTS)
+        tripRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p1: DataSnapshot) {
+                p1.children.forEachIndexed { index, it ->
+                    val innerUser = it.getValue(User::class.java)!!
+                    val geoFire = GeoFire(tripRef.child(index.toString()))
+                    geoFire.getLocation(LOCATION, object : LocationCallback {
+                        override fun onLocationResult(
+                            key: String?,
+                            location: GeoLocation?
+                        ) {
+                            if (location != null) {
+                                innerUser.userLocation = location
+                            } else {
+                                Log.e(
+                                    TAG,
+                                    "There is no location for key %s in GeoFire $key"
+                                )
+                            }
+                        }
+
+                        override fun onCancelled(databaseError: DatabaseError) {
+                            Log.e(
+                                TAG,
+                                "There was an error getting the GeoFire location: $databaseError"
+                            )
+                        }
+                    })
+                    participantsList.add(innerUser)
+                }
+                genericCallback.onResponseReady(participantsList)
+            }
+
+            override fun onCancelled(p1: DatabaseError) {
+                Log.d(
+                    TAG,
+                    "p1, onCancelled, getTripParticipantFirebase: " + p1.message
+                )
+            }
+        })
+    }
+
+    fun removeListenersFirebase() {
+        firebaseReference.child(TRIPS).removeEventListener(childEventListener)
     }
 
     companion object {

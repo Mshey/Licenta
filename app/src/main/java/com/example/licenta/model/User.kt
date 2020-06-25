@@ -1,4 +1,7 @@
 package com.example.licenta.model
 
-data class User(val userName:String="") {
+import com.firebase.geofire.GeoLocation
+
+data class User(val username: String = "") {
+    var userLocation: GeoLocation = GeoLocation(0.0, 0.0)
 }

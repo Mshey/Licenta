@@ -16,12 +16,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta.OnDataClickListener
 import com.example.licenta.R
 import com.example.licenta.Utils.TAG
-import com.example.licenta.Utils.TRIP
 import com.example.licenta.model.Trip
 import com.example.licenta.view.adapter.TripItemAdapter
 import com.example.licenta.viewmodel.TripViewModel
 import kotlinx.android.synthetic.main.fragment_future_trips.*
-
 
 class FutureTripsFragment : Fragment() {
     private lateinit var mView: View
@@ -35,7 +33,7 @@ class FutureTripsFragment : Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         mView = inflater.inflate(R.layout.fragment_future_trips, container, false)
-        tripViewModel = ViewModelProvider(this).get(
+        tripViewModel = ViewModelProvider(requireActivity()).get(
             "future",
             TripViewModel::class.java
         )
@@ -48,36 +46,40 @@ class FutureTripsFragment : Fragment() {
         adapter = TripItemAdapter(object : OnDataClickListener<Trip> {
             override fun onClick(ob: Trip) {
                 val bundle = Bundle()
-                bundle.putSerializable(TRIP, ob)
+                bundle.putString(getString(R.string.trip), ob.id)
                 Navigation.findNavController(activity!!, R.id.my_nav_host_fragment)
                     .navigate(R.id.action_futureTripsFragment_to_tripDetailsFragment, bundle)
             }
         })
 
-        val futureTripsRecyclerView =
+        val futureOrganizedTripsRecyclerView =
             mView.findViewById<RecyclerView>(R.id.future_trips_recyclerview)
 
-        futureTripsRecyclerView.adapter = adapter
-        futureTripsRecyclerView.layoutManager = LinearLayoutManager(context, VERTICAL, false)
+        futureOrganizedTripsRecyclerView.adapter = adapter
+        futureOrganizedTripsRecyclerView.layoutManager =
+            LinearLayoutManager(context, VERTICAL, false)
         val dividerItemDecoration = DividerItemDecoration(
-            futureTripsRecyclerView.context,
+            futureOrganizedTripsRecyclerView.context,
             VERTICAL
         )
-        futureTripsRecyclerView.addItemDecoration(dividerItemDecoration)
-        futureTripsRecyclerView.setHasFixedSize(true)
+        futureOrganizedTripsRecyclerView.addItemDecoration(dividerItemDecoration)
+        futureOrganizedTripsRecyclerView.setHasFixedSize(true)
 
-        tripViewModel.getFutureOrganizedTrips()
-        tripViewModel.futureOrganizedTripsMutableLiveData.observe(viewLifecycleOwner, Observer {
+
+        tripViewModel.getFutureTrips()
+        tripViewModel.futureTripsMutableLiveData.observe(viewLifecycleOwner, Observer {
+            it.forEach { it2 ->
+                if (it2.active && !it2.done) {
+                    val bundle = Bundle()
+                    bundle.putString(getString(R.string.trip_id), it2.id)
+                    bundle.putBoolean(getString(R.string.trip_org), true)
+                    val navController =
+                        Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+                    navController.navigate(R.id.action_futureTripsFragment_to_mapFragment, bundle)
+                }
+            }
             adapter.addTripsToList(it)
-            Log.d(TAG, "emese: futureOrganizedTripsMutableLiveData")
         })
-
-        tripViewModel.getFutureParticipantTrips()
-        tripViewModel.futureParticipantTripsMutableLiveData.observe(viewLifecycleOwner, Observer {
-            adapter.addTripsToList(it)
-            Log.d(TAG, "emese: futureParticipantTripsMutableLiveData")
-        })
-
 
         add_trip.setOnClickListener {
             val navController =
@@ -86,8 +88,8 @@ class FutureTripsFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        adapter.clearTripList()
+    override fun onDestroy() {
+        super.onDestroy()
+        tripViewModel.removeListeners()
     }
 }

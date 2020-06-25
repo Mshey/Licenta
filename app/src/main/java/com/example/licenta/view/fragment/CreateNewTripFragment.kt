@@ -26,8 +26,6 @@ import com.example.licenta.model.TripState
 import com.example.licenta.model.User
 import com.example.licenta.viewmodel.TripViewModel
 import kotlinx.android.synthetic.main.fragment_new_trip.*
-import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 
 class CreateNewTripFragment : Fragment() {
@@ -154,7 +152,7 @@ class CreateNewTripFragment : Fragment() {
             textInputEditTextDescription.error = EMPTY_FIELD
             everyThingNotEmpty = false
         }
-        val participantsStringArray = ArrayList<String>()
+        val participantsUserArray = ArrayList<User>()
         if (participantsEditText.isEmpty()) {
             participants_error_message.text =
                 getString(R.string.empty_part_list_error_message)
@@ -162,7 +160,7 @@ class CreateNewTripFragment : Fragment() {
             everyThingNotEmpty = false
         } else {
             participantsEditText.forEach {
-                participantsStringArray.add(it.text.toString())
+                participantsUserArray.add(User(it.text.toString()))
             }
         }
 
@@ -172,7 +170,7 @@ class CreateNewTripFragment : Fragment() {
                 textInputEditTextAddress.text.toString(),
                 date,
                 textInputEditTextDescription.text.toString(),
-                participantsStringArray
+                participantsUserArray
             )
 
             tripViewModel.addNewTrip(trip, requireContext())

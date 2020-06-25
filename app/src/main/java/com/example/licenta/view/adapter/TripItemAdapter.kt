@@ -18,7 +18,7 @@ class TripItemAdapter(
     private val dataClickListener: OnDataClickListener<Trip>
 ) :
     RecyclerView.Adapter<TripItemAdapter.ItemTripViewHolder>() {
-    private var tripList: ArrayList<Trip> = ArrayList()
+    private var tripList: MutableList<Trip> = mutableListOf()
 
     class ItemTripViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val titleTextView: TextView = itemView.item_trip_title
@@ -46,26 +46,18 @@ class TripItemAdapter(
         val trip = tripList[position]
         holder.titleTextView.text = trip.title
         holder.descriptionTextView.text = trip.description
-        holder.organizerTextView.text = trip.organizer
-        if (trip.organizer == username) holder.tripDetailsConstraintLayout.setBackgroundResource(R.drawable.item_trip_with_border)
+        holder.organizerTextView.text = trip.organizer.username
+        if (trip.organizer.username == username) holder.tripDetailsConstraintLayout.setBackgroundResource(
+            R.drawable.item_trip_with_border
+        )
         holder.mView.setOnClickListener {
             dataClickListener.onClick(trip)
         }
     }
 
-    fun addToTripList(trip: Trip) {
-        tripList.add(trip)
-        notifyDataSetChanged()
-    }
-
     fun addTripsToList(trips: List<Trip>) {
+        tripList.clear()
         tripList.addAll(trips)
         notifyDataSetChanged()
-    }
-
-    fun clearTripList() {
-        val size = itemCount
-        tripList.clear()
-        notifyItemRangeRemoved(0, size)
     }
 }

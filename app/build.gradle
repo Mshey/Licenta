@@ -8,7 +8,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.example.licenta"
         minSdkVersion 26
@@ -22,6 +22,14 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 }
 
@@ -76,4 +84,22 @@ dependencies {
 
     //Rounded image
     implementation 'com.makeramen:roundedimageview:2.3.0'
+
+    //Maps
+    implementation 'com.google.android.libraries.places:places:2.3.0'
+
+    //Location manager
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+
+    //GeoFire
+    implementation 'com.firebase:geofire-android:3.0.0'
+
+    // Google Maps Services (needed for directions)
+    implementation 'com.google.maps:google-maps-services:0.2.9'
+
+    //async
+    implementation 'org.jetbrains.anko:anko-sdk15:0.8.2'
+    //for json file
+    implementation 'com.beust:klaxon:0.30'
 }

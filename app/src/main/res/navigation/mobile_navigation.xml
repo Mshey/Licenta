@@ -36,6 +36,9 @@
         <action
             android:id="@+id/action_futureTripsFragment_to_tripDetailsFragment"
             app:destination="@id/tripDetailsFragment" />
+        <action
+            android:id="@+id/action_futureTripsFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
     </fragment>
     <fragment
         android:id="@+id/createNewTripFragment"
@@ -86,5 +89,17 @@
     <fragment
         android:id="@+id/tripDetailsFragment"
         android:name="com.example.licenta.view.fragment.TripDetailsFragment"
-        android:label="TripDetailsFragment" />
+        android:label="TripDetailsFragment" >
+        <action
+            android:id="@+id/action_tripDetailsFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.licenta.view.fragment.MapFragment"
+        android:label="MapFragment" >
+        <action
+            android:id="@+id/action_mapFragment_to_futureTripsFragment"
+            app:destination="@id/futureTripsFragment" />
+    </fragment>
 </navigation>

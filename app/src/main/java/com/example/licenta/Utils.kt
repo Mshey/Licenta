@@ -1,6 +1,9 @@
 package com.example.licenta
 
+import android.content.Context
 import android.content.res.Resources
+import android.location.Location
+import androidx.core.content.edit
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -19,7 +22,6 @@ object Utils {
     const val USERS: String = "users"
     const val EMAIL: String = "email"
     const val USERNAME: String = "username"
-    const val ACTIVE:String = "active"
 
     const val TRIPS: String = "trips"
     const val ORGANIZED: String = "organized"
@@ -33,13 +35,16 @@ object Utils {
     const val DATE: String = "date"
     const val DESCRIPTION: String = "description"
     const val PARTICIPANTS: String = "participants"
+    const val ACTIVE:String = "active"
+    const val DONE = "done"
 
     const val EMPTY_FIELD:String = "Field can't be empty!"
 
-    const val TRIP = "trip"
-
     var username = ""
     var helloUser = ""
+
+    const val NOTIFICATION_ID = 1
+    const val CHANNEL_ID = "myChannel"
 
     fun Int.toDp(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()
     fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
@@ -54,7 +59,4 @@ object Utils {
         val df = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
         return df.parse(date)!!.time
     }
-
-    const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002
-
 }
