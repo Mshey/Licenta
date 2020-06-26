@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.example.licenta.NavEvent
 import com.example.licenta.R
 import com.example.licenta.Utils.EMPTY_FIELD
 import com.example.licenta.Utils.convertDateToLong
@@ -25,10 +26,16 @@ import com.example.licenta.model.Trip
 import com.example.licenta.model.TripState
 import com.example.licenta.model.User
 import com.example.licenta.viewmodel.TripViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.processors.PublishProcessor
 import kotlinx.android.synthetic.main.fragment_new_trip.*
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CreateNewTripFragment : Fragment() {
+    @Inject
+    lateinit var navEvents: PublishProcessor<NavEvent>
     private lateinit var mView: View
     private lateinit var linearLayout: LinearLayout
     private val participantsEditText: ArrayList<EditText> = ArrayList()
@@ -191,11 +198,12 @@ class CreateNewTripFragment : Fragment() {
                                 "Trip successfully created",
                                 Toast.LENGTH_LONG
                             ).show()
-                            Navigation.findNavController(
-                                requireActivity(),
-                                R.id.my_nav_host_fragment
-                            )
-                                .navigate(R.id.action_createNewTripFragment_to_futureTripsFragment)
+//                            Navigation.findNavController(
+//                                requireActivity(),
+//                                R.id.my_nav_host_fragment
+//                            )
+//                                .navigate(R.id.action_createNewTripFragment_to_futureTripsFragment)
+                            navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
                         }
                     }
                 }

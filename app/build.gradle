@@ -6,6 +6,10 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
+apply plugin: 'dagger.hilt.android.plugin'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
@@ -33,7 +37,7 @@ android {
     }
 }
 
-final NavigationVersion = "2.3.0-alpha06"
+final NavigationVersion = "2.3.0-rc01"
 final LifecycleVersion = "2.2.0"
 final LoggingInterceptorVersion = "4.0.1"
 
@@ -41,7 +45,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation 'androidx.fragment:fragment-ktx:1.3.0-alpha04'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.1.0'
     testImplementation 'junit:junit:4.12'
@@ -74,8 +79,6 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
     implementation "com.squareup.retrofit2:converter-gson:2.6.0"
 
-    implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
-
     //Logging Interceptor
     implementation "com.squareup.okhttp3:logging-interceptor:$LoggingInterceptorVersion"
 
@@ -102,4 +105,16 @@ dependencies {
     implementation 'org.jetbrains.anko:anko-sdk15:0.8.2'
     //for json file
     implementation 'com.beust:klaxon:0.30'
+
+    //Dagger - Hilt
+    implementation "com.google.dagger:hilt-android:2.28-alpha"
+    kapt "com.google.dagger:hilt-android-compiler:2.28-alpha"
+
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha01"
+    kapt "androidx.hilt:hilt-compiler:1.0.0-alpha01"
+
+    //reactivex
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    implementation "io.reactivex.rxjava2:rxjava:2.2.3"
+    implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
 }

@@ -9,12 +9,20 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.example.licenta.NavEvent
 import com.example.licenta.R
 import com.example.licenta.model.RegistrationState
 import com.example.licenta.viewmodel.AuthenticationViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.processors.PublishProcessor
 import kotlinx.android.synthetic.main.fragment_registration.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class RegistrationFragment : Fragment() {
+    @Inject
+    lateinit var navEvents: PublishProcessor<NavEvent>
+
     private lateinit var mView: View
 
     override fun onCreateView(
@@ -31,13 +39,15 @@ class RegistrationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val wantToLogin = mView.findViewById<View>(R.id.loginAccount) as TextView
         wantToLogin.setOnClickListener {
-            val navController =
-                Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-            navController.navigate(R.id.action_registrationFragment_to_loginFragment)
+//            val navController =
+//                Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+//            navController.navigate(R.id.action_registrationFragment_to_loginFragment)
+            navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
         }
         terms_text.setOnClickListener {
-            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-                .navigate(R.id.action_registrationFragment_to_termsFragment)
+//            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+////                .navigate(R.id.action_registrationFragment_to_termsFragment)
+            navEvents.onNext(NavEvent(NavEvent.Destination.TERMS))
         }
         val registerButton = mView.findViewById<View>(R.id.register_button) as Button
         registerButton.setOnClickListener { registerUser() }
@@ -105,8 +115,9 @@ class RegistrationFragment : Fragment() {
                             "Successfully registered!",
                             Toast.LENGTH_LONG
                         ).show()
-                        Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-                            .navigate(R.id.action_registrationFragment_to_loginFragment)
+//                        Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+//                            .navigate(R.id.action_registrationFragment_to_loginFragment)
+                        navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
                     }
                     RegistrationState.UNSUCCESSFUL -> {
                         Toast.makeText(

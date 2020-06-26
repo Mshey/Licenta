@@ -9,12 +9,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.example.licenta.NavEvent
 import com.example.licenta.R
 import com.example.licenta.viewmodel.AuthenticationViewModel
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.processors.PublishProcessor
 import kotlinx.android.synthetic.main.fragment_change_password.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ChangePasswordFragment : Fragment() {
+    @Inject
+    lateinit var navEvents: PublishProcessor<NavEvent>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,8 +50,9 @@ class ChangePasswordFragment : Fragment() {
                         Toast.makeText(context, "Password updated successfully!", Toast.LENGTH_LONG)
                             .show()
                         FirebaseAuth.getInstance().signOut()
-                        Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-                            .navigate(R.id.action_changePasswordFragment_to_loginFragment)
+//                        Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+//                            .navigate(R.id.action_changePasswordFragment_to_loginFragment)
+                        navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
                     } else Toast.makeText(context, "Something went wrong!", Toast.LENGTH_LONG)
                         .show()
                 })

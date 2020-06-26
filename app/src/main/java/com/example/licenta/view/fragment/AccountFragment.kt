@@ -7,7 +7,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,17 +18,22 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.example.licenta.NavEvent
 import com.example.licenta.R
-import com.example.licenta.Utils.TAG
 import com.example.licenta.Utils.helloUser
 import com.example.licenta.Utils.toPx
 import com.example.licenta.Utils.username
 import com.example.licenta.viewmodel.AuthenticationViewModel
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.processors.PublishProcessor
 import kotlinx.android.synthetic.main.fragment_account.*
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class AccountFragment : Fragment() {
+    @Inject
+    lateinit var navEvents: PublishProcessor<NavEvent>
     private lateinit var mView: View
 
     override fun onCreateView(
@@ -52,8 +56,9 @@ class AccountFragment : Fragment() {
 
 
         change_password.setOnClickListener {
-            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-                .navigate(R.id.action_accountFragment_to_changePasswordFragment)
+//            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+//                .navigate(R.id.action_accountFragment_to_changePasswordFragment)
+            navEvents.onNext(NavEvent(NavEvent.Destination.CHANGEPASSWORD))
         }
 
         delete_account.setOnClickListener { delete() }
@@ -66,8 +71,9 @@ class AccountFragment : Fragment() {
 
         val termsClickableSpan: ClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
-                Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-                    .navigate(R.id.action_accountFragment_to_termsFragment)
+//                Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+//                    .navigate(R.id.action_accountFragment_to_termsFragment)
+                navEvents.onNext(NavEvent(NavEvent.Destination.TERMS))
             }
         }
 
@@ -87,8 +93,9 @@ class AccountFragment : Fragment() {
         logout_button.setOnClickListener {
             helloUser = ""
             FirebaseAuth.getInstance().signOut()
-            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-                .navigate(R.id.action_accountFragment_to_loginFragment)
+//            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
+//                .navigate(R.id.action_accountFragment_to_loginFragment)
+            navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
         }
     }
 
@@ -128,11 +135,12 @@ class AccountFragment : Fragment() {
                                         Toast.LENGTH_LONG
                                     )
                                         .show()
-                                    Navigation.findNavController(
-                                        requireActivity(),
-                                        R.id.my_nav_host_fragment
-                                    )
-                                        .navigate(R.id.action_accountFragment_to_loginFragment)
+//                                    Navigation.findNavController(
+//                                        requireActivity(),
+//                                        R.id.my_nav_host_fragment
+//                                    )
+//                                        .navigate(R.id.action_accountFragment_to_loginFragment)
+                                    navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
                                 } else Toast.makeText(
                                     context,
                                     "Something went wrong!",

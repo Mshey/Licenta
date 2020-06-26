@@ -19,11 +19,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
 import com.beust.klaxon.*
+import com.example.licenta.NavEvent
 import com.example.licenta.R
+import com.example.licenta.Utils.ORGANIZER
 import com.example.licenta.Utils.TAG
 import com.example.licenta.viewmodel.TripViewModel
 import com.google.android.gms.common.ConnectionResult
@@ -32,12 +34,18 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.GeoApiContext
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.processors.PublishProcessor
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.jetbrains.anko.async
 import org.jetbrains.anko.uiThread
 import java.net.URL
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MapFragment : Fragment(), OnMapReadyCallback {
+    @Inject
+    lateinit var navEvents: PublishProcessor<NavEvent>
 
     private var locationPermissionGranted = false
     private var fusedLocationClient: FusedLocationProviderClient? = null
@@ -46,10 +54,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var locationRequest: LocationRequest
     private var zoomIn = true
 
-    private lateinit var tripId: String
+    private var tripId: String = ""
     private var isTripOrganizer: Boolean = false
     private lateinit var currentOrganizerLatLng: LatLng
-    private lateinit var destinationLatLng: com.google.maps.model.LatLng
+    private lateinit var destinationLatLng: LatLng
     private lateinit var geoApiContext: GeoApiContext
     private lateinit var tripViewModel: TripViewModel
 
@@ -70,81 +78,171 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             TripViewModel::class.java
         )
         geoApiContext = GeoApiContext.Builder().apiKey(getString(R.string.map_api_key)).build()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tripId = arguments?.getString(getString(R.string.trip_id))!!
-        isTripOrganizer = arguments?.getBoolean(getString(R.string.trip_org))!!
         var tripParticipantIndex: Int = -1
-        if (!isTripOrganizer) tripParticipantIndex = arguments?.getInt("participant index")!!
-        else {
-            val innerLat = arguments?.getDouble("trip lat")!!
-            val innerLng = arguments?.getDouble("trip lng")!!
-            destinationLatLng = com.google.maps.model.LatLng(innerLat, innerLng)
+
+        setFragmentResultListener("details") { _, bundle ->
+            tripId = bundle.getString(getString(R.string.trip_id))!!
+            isTripOrganizer = bundle.getBoolean(getString(R.string.trip_org))
+
+            locationCallback = object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    for (location in locationResult.locations) {
+                        tripViewModel.updateTrip(
+                            tripId,
+                            location,
+                            isTripOrganizer,
+                            tripParticipantIndex
+                        )
+                        currentOrganizerLatLng = LatLng(location.latitude, location.longitude)
+
+                        // Update UI with location data
+                        if (zoomIn) {
+                            val center: CameraUpdate =
+                                CameraUpdateFactory.newLatLng(currentOrganizerLatLng)
+                            val zoom: CameraUpdate = CameraUpdateFactory.zoomTo(20F)
+                            mMap?.moveCamera(center)
+                            mMap?.animateCamera(zoom)
+                            zoomIn = false
+                        }
+                        if (checkSelfPermission(
+                                requireContext(),
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(
+                                requireContext(),
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            return
+                        }
+                        mMap?.isMyLocationEnabled = true
+                    }
+                }
+            }
+
+            if (isTripOrganizer) {
+                val innerLat = bundle.getDouble("trip lat")
+                val innerLng = bundle.getDouble("trip lng")
+                destinationLatLng = LatLng(innerLat, innerLng)
+
+                stop_trip_button.visibility = View.VISIBLE
+                stop_trip_button.setOnClickListener {
+                    tripViewModel.stopTrip(tripId)
+                    navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                }
+
+                val options = PolylineOptions()
+                options.color(RED)
+                options.width(5f)
+
+                // build URL to call API
+                fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
+                    currentOrganizerLatLng = LatLng(location.latitude, location.longitude)
+                    val url = getURL(currentOrganizerLatLng, destinationLatLng)
+                    val latLngBounds = LatLngBounds.Builder()
+
+                    async {
+                        // Connect to URL, download content and convert into string asynchronously
+                        val result = URL(url).readText()
+                        Log.d(TAG, "result: $result")
+                        uiThread {
+                            // When API call is done, create parser and convert into JsonObjec
+                            val parser = Parser()
+                            val stringBuilder: StringBuilder = StringBuilder(result)
+                            val json: JsonObject = parser.parse(stringBuilder) as JsonObject
+                            // get to the correct element in JsonObject
+                            val routes = json.array<JsonObject>("routes")
+                            val points = routes!!["legs"]["steps"][0] as JsonArray<JsonObject>
+                            // For every element in the JsonArray, decode the polyline string and pass all points to a List
+                            val polypts =
+                                points.flatMap {
+                                    decodePoly(
+                                        it.obj("polyline")?.string("points")!!
+                                    )
+                                }
+                            // Add  points to polyline and bounds
+                            options.add(currentOrganizerLatLng)
+                            latLngBounds.include(currentOrganizerLatLng)
+                            for (point in polypts) {
+                                options.add(point)
+                                latLngBounds.include(point)
+                            }
+                            options.add(destinationLatLng)
+                            latLngBounds.include(destinationLatLng)
+                            // build bounds
+                            val bounds = latLngBounds.build()
+                            // add polyline to the map
+                            mMap!!.addPolyline(options)
+                            // show map with route centered
+                            mMap!!.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
+                        }
+                    }
+                }
+
+                val markerHashMap: HashMap<String, Marker> = HashMap()
+                tripViewModel.getParticipants(tripId)
+                tripViewModel.tripParticipants.observe(viewLifecycleOwner, Observer {
+                    it.forEach { it2 ->
+                        if (it2.userLocation.latitude != 0.0 && it2.userLocation.longitude != 0.0) {
+                            if (markerHashMap.containsKey(it2.username)) {
+                                markerHashMap[it2.username]?.position =
+                                    LatLng(it2.userLocation.latitude, it2.userLocation.longitude)
+                            } else {
+                                markerHashMap[it2.username] = mMap!!.addMarker(
+                                    MarkerOptions().position(
+                                        LatLng(
+                                            it2.userLocation.latitude,
+                                            it2.userLocation.longitude
+                                        )
+                                    )
+                                        .title(it2.username)
+                                )
+                            }
+                        }
+                    }
+                })
+            } else {
+                tripParticipantIndex = bundle.getInt("participant index")
+                stop_trip_button.visibility = View.VISIBLE
+                stop_trip_button.text = "Exit trip"
+                stop_trip_button.setOnClickListener {
+                    navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                }
+
+                tripViewModel.isTripActive(tripId)
+                tripViewModel.isTripActiveMutableLiveData.observe(viewLifecycleOwner, Observer {
+                    if (!it) {
+                        Toast.makeText(requireContext(), "Your trip has ended!", Toast.LENGTH_LONG).show()
+                        navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                    }
+                })
+
+                var organizerMarker: Marker? = null
+                tripViewModel.getOrganizerLocation(tripId)
+                tripViewModel.organizerLocationMutableLiveData.observe(viewLifecycleOwner, Observer {
+                    if (organizerMarker == null) {
+                        organizerMarker = mMap!!.addMarker(
+                            MarkerOptions().position(it).title(ORGANIZER)
+                        )
+                    } else {
+                        organizerMarker!!.position = it
+                    }
+                })
+            }
         }
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         val mMapView: MapView = map
         mMapView.onCreate(savedInstanceState)
         mMapView.onResume()
         mMapView.getMapAsync(this) //when you already implement OnMapReadyCallback in your fragment
 
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                for (location in locationResult.locations) {
-                    tripViewModel.updateTrip(
-                        tripId,
-                        location,
-                        isTripOrganizer,
-                        tripParticipantIndex
-                    )
-                    currentOrganizerLatLng = LatLng(location.latitude, location.longitude)
-
-                    // Update UI with location data
-                    if (zoomIn) {
-                        val center: CameraUpdate =
-                            CameraUpdateFactory.newLatLng(currentOrganizerLatLng)
-                        val zoom: CameraUpdate = CameraUpdateFactory.zoomTo(20F)
-                        mMap?.moveCamera(center)
-                        mMap?.animateCamera(zoom)
-                        zoomIn = false
-                    }
-                    if (checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        return
-                    }
-                    mMap?.isMyLocationEnabled = true
-                }
-            }
-        }
         locationPermission
-
-        if (isTripOrganizer) {
-            stop_trip_button.visibility = View.VISIBLE
-            stop_trip_button.setOnClickListener {
-                tripViewModel.stopTrip(tripId)
-                tripViewModel.tripStoppedLiveData.observe(viewLifecycleOwner, Observer {
-                    if (it) {
-                        val navController =
-                            Navigation.findNavController(
-                                requireActivity(),
-                                R.id.my_nav_host_fragment
-                            )
-                        navController.navigate(R.id.action_mapFragment_to_futureTripsFragment)
-                    }
-                })
-
-            }
-        }
     }
 
     private fun checkMapServices(): Boolean {
@@ -306,136 +404,45 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         Log.d(TAG, "onMapReady called")
         mMap = googleMap
-        if (isTripOrganizer) {
-            val markerHashMap: HashMap<String, Marker> = HashMap()
-            tripViewModel.getParticipants(tripId)
-            tripViewModel.tripParticipants.observe(viewLifecycleOwner, Observer {
-                it.forEach { it2 ->
-                    if (it2.userLocation.latitude != 0.0 && it2.userLocation.longitude != 0.0) {
-                        if (markerHashMap.containsKey(it2.username)) {
-                            markerHashMap[it2.username]?.position =
-                                LatLng(it2.userLocation.latitude, it2.userLocation.longitude)
-                        } else {
-                            markerHashMap[it2.username] = googleMap.addMarker(
-                                MarkerOptions().position(
-                                    LatLng(
-                                        it2.userLocation.latitude,
-                                        it2.userLocation.longitude
-                                    )
-                                )
-                                    .title(it2.username)
-                            )
-                        }
-                    }
-                }
-            })
-
-//            val directionsApiRequest = DirectionsApiRequest(geoApiContext)
-//            directionsApiRequest.alternatives(true)
-//
-//            Log.d(TAG, "emese entered")
-//            directionsApiRequest.origin(
-//                com.google.maps.model.LatLng(
-//                    46.780061,
-//                    23.6039668
-//                )
-//            )
-//            directionsApiRequest.destination(
-//                com.google.maps.model.LatLng(
-//                    46.7722524,
-//                    23.5852511
-//                )
-//            ).setCallback(object : PendingResult.Callback<DirectionsResult> {
-//                override fun onFailure(e: Throwable?) {
-//                    Log.d(TAG, "onFailure: " + e?.message)
-//                }
-//
-//                override fun onResult(result: DirectionsResult?) {
-//                    Log.d(TAG, "onResult: successfully retrieved directions!")
-//
-//                    Handler(Looper.getMainLooper()).post(object : Runnable {
-//                        override fun run() {
-//                            Log.d(
-//                                TAG,
-//                                "run: result routes: " + result!!.routes.size
-//                            )
-//                            for (route in result.routes) {
-//                                Log.d(TAG, "run: leg: " + route.legs[0].toString())
-//                                val decodedPath: List<com.google.maps.model.LatLng> =
-//                                    PolylineEncoding.decode(route.overviewPolyline.encodedPath)
-//                                val newDecodedPath: MutableList<LatLng> =
-//                                    mutableListOf()
-//
-//                                // This loops through all the LatLng coordinates of ONE polyline.
-//                                for (latLng in decodedPath) {
-//                                    newDecodedPath.add(
-//                                        LatLng(
-//                                            latLng.lat,
-//                                            latLng.lng
-//                                        )
+//        if (isTripOrganizer) {
+//            val markerHashMap: HashMap<String, Marker> = HashMap()
+//            tripViewModel.getParticipants(tripId)
+//            tripViewModel.tripParticipants.observe(viewLifecycleOwner, Observer {
+//                it.forEach { it2 ->
+//                    if (it2.userLocation.latitude != 0.0 && it2.userLocation.longitude != 0.0) {
+//                        if (markerHashMap.containsKey(it2.username)) {
+//                            markerHashMap[it2.username]?.position =
+//                                LatLng(it2.userLocation.latitude, it2.userLocation.longitude)
+//                        } else {
+//                            markerHashMap[it2.username] = googleMap.addMarker(
+//                                MarkerOptions().position(
+//                                    LatLng(
+//                                        it2.userLocation.latitude,
+//                                        it2.userLocation.longitude
 //                                    )
-//                                }
-//                                val polyline: Polyline =
-//                                    mMap?.addPolyline(
-//                                        PolylineOptions().addAll(
-//                                            newDecodedPath
-//                                        )
-//                                    )!!
-//                                polyline.color = RED
-//                                polyline.isClickable = true
-//                            }
+//                                )
+//                                    .title(it2.username)
+//                            )
 //                        }
-//                    })
+//                    }
 //                }
 //            })
-
-            val options = PolylineOptions()
-            options.color(RED)
-            options.width(5f)
-
-            val sydney = LatLng(46.780061, 23.6039668)
-            val opera = LatLng(46.7722524,23.5852511)
-
-            // build URL to call API
-            val url = getURL(sydney, opera)
-            Log.d(TAG, "emese: $url")
-            val latLngBounds = LatLngBounds.Builder()
-
-            async {
-                // Connect to URL, download content and convert into string asynchronously
-                val result = URL(url).readText()
-                Log.d(TAG, "emese: $result")
-                uiThread {
-                    // When API call is done, create parser and convert into JsonObjec
-                    val parser = Parser()
-                    val stringBuilder: StringBuilder = StringBuilder(result)
-                    val json: JsonObject = parser.parse(stringBuilder) as JsonObject
-                    // get to the correct element in JsonObject
-                    val routes = json.array<JsonObject>("routes")
-                    val points = routes!!["legs"]["steps"][0] as JsonArray<JsonObject>
-                    // For every element in the JsonArray, decode the polyline string and pass all points to a List
-                    val polypts = points.flatMap { decodePoly(it.obj("polyline")?.string("points")!!)  }
-                    // Add  points to polyline and bounds
-                    options.add(sydney)
-                    latLngBounds.include(sydney)
-                    for (point in polypts)  {
-                        options.add(point)
-                        latLngBounds.include(point)
-                    }
-                    options.add(opera)
-                    latLngBounds.include(opera)
-                    // build bounds
-                    val bounds = latLngBounds.build()
-                    // add polyline to the map
-                    mMap!!.addPolyline(options)
-                    // show map with route centered
-                    mMap!!.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
-                }
-            }
-        }
+//        } else {
+//            var organizerMarker: Marker? = null
+//            tripViewModel.getOrganizerLocation(tripId)
+//            tripViewModel.organizerLocationMutableLiveData.observe(viewLifecycleOwner, Observer {
+//                if (organizerMarker == null) {
+//                    organizerMarker = googleMap.addMarker(
+//                        MarkerOptions().position(it).title(ORGANIZER)
+//                    )
+//                } else {
+//                    organizerMarker!!.position = it
+//                }
+//            })
+//        }
     }
 
-    private fun getURL(from : LatLng, to : LatLng) : String {
+    private fun getURL(from: LatLng, to: LatLng): String {
         val origin = "origin=" + from.latitude + "," + from.longitude
         val dest = "destination=" + to.latitude + "," + to.longitude
         val key = "key=" + getString(R.string.map_api_key)
@@ -476,8 +483,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             val dlng = if (result and 1 != 0) (result shr 1).inv() else result shr 1
             lng += dlng
 
-            val p = LatLng(lat.toDouble() / 1E5,
-                lng.toDouble() / 1E5)
+            val p = LatLng(
+                lat.toDouble() / 1E5,
+                lng.toDouble() / 1E5
+            )
             poly.add(p)
         }
 

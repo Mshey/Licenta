@@ -13,14 +13,22 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.example.licenta.NavEvent
 import com.example.licenta.R
 import com.example.licenta.Utils
 import com.example.licenta.viewmodel.AuthenticationViewModel
+import com.example.licenta.viewmodel.TripViewModel
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.processors.PublishProcessor
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
+    @Inject
+    lateinit var navEvents: PublishProcessor<NavEvent>
+
     private lateinit var mView: View
-    private lateinit var navController: NavController
     private lateinit var authenticationViewModel: AuthenticationViewModel
 
     override fun onCreateView(
@@ -30,20 +38,31 @@ class LoginFragment : Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         mView = inflater.inflate(R.layout.fragment_login, container, false)
+        authenticationViewModel = ViewModelProvider(requireActivity()).get(AuthenticationViewModel::class.java)
         return mView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController =
-            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-        authenticationViewModel = ViewModelProvider(this).get(AuthenticationViewModel::class.java)
+
+//        val tripViewModel = ViewModelProvider(requireActivity()).get(TripViewModel::class.java)
+//        tripViewModel.getActiveTrip()
+
         authenticationViewModel.checkIfUserIsAuthenticated()
         authenticationViewModel.isUserAuthenticatedLiveData?.observe(
             viewLifecycleOwner,
             Observer { authenticated ->
                 if (authenticated) {
-                    navController.navigate(R.id.action_loginFragment_to_futureTripsFragment)
+//                    tripViewModel.tripMutableLiveData.observe(viewLifecycleOwner, Observer {
+////                        if (it.active)
+//                        if (it == null)
+                        navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+//                        else
+//                            navEvents.onNext(NavEvent(NavEvent.Destination.MAP))
+//                        else
+
+//                    })
+
                 }
                 else{
                     Utils.helloUser = ""
@@ -52,7 +71,7 @@ class LoginFragment : Fragment() {
             })
         val wantToRegister = mView.findViewById<View>(R.id.registerAccount) as TextView
         wantToRegister.setOnClickListener {
-            navController.navigate(R.id.action_loginFragment_to_registrationFragment)
+            navEvents.onNext(NavEvent(NavEvent.Destination.REGISTRATION))
         }
 
         val loginButton = mView.findViewById<View>(R.id.login_button) as Button
@@ -78,7 +97,7 @@ class LoginFragment : Fragment() {
                             .show()
                     }
                     canLogin -> {
-                        navController.navigate(R.id.action_loginFragment_to_futureTripsFragment)
+                        navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
                         Toast.makeText(context, "Successfully logged in!", Toast.LENGTH_LONG)
                             .show()
                     }

@@ -10,6 +10,7 @@ import com.example.licenta.model.Trip
 import com.example.licenta.model.TripState
 import com.example.licenta.model.User
 import com.example.licenta.model.repository.TripRepository
+import com.google.android.gms.maps.model.LatLng
 
 class TripViewModel : ViewModel() {
     private val tripRepository = TripRepository.getInstance()
@@ -17,13 +18,13 @@ class TripViewModel : ViewModel() {
     var futureTripsMutableLiveData: MutableLiveData<List<Trip>> = MutableLiveData()
     var pastTripsMutableLiveData: MutableLiveData<List<Trip>> = MutableLiveData()
     var tripMutableLiveData: MutableLiveData<Trip> = MutableLiveData()
+    var organizerLocationMutableLiveData: MutableLiveData<LatLng> = MutableLiveData()
+    var isTripActiveMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     var newTripLiveData: LiveData<List<TripState>>? = null
     var userLiveData: LiveData<Boolean>? = null
 
     var tripParticipants: MutableLiveData<List<User>> = MutableLiveData()
-
-    var tripStoppedLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getFutureTrips() {
         tripRepository
@@ -43,6 +44,15 @@ class TripViewModel : ViewModel() {
             })
     }
 
+    fun getActiveTrip() {
+        tripRepository.getActiveTripFirebase(object : GenericCallback<Trip?> {
+            override fun onResponseReady(generic: Trip?) {
+                tripMutableLiveData.value = generic
+            }
+
+        })
+    }
+
     fun getTrip(tripId: String) {
         tripRepository.getTripFirebase(object : GenericCallback<Trip> {
             override fun onResponseReady(generic: Trip) {
@@ -56,11 +66,7 @@ class TripViewModel : ViewModel() {
     }
 
     fun stopTrip(tripId: String) {
-        tripRepository.stopTrip(tripId, object : GenericCallback<Boolean> {
-            override fun onResponseReady(generic: Boolean) {
-                tripStoppedLiveData.value = generic
-            }
-        })
+        tripRepository.stopTrip(tripId)
     }
 
     fun updateTrip(
@@ -69,7 +75,7 @@ class TripViewModel : ViewModel() {
         organizer: Boolean,
         tripParticipantIndex: Int
     ) {
-        tripRepository.updateLocation(tripId, location, organizer, tripParticipantIndex)
+        tripRepository.updateLocationFirebase(tripId, location, organizer, tripParticipantIndex)
     }
 
     fun checkIfUserExists(user: String) {
@@ -85,6 +91,23 @@ class TripViewModel : ViewModel() {
             override fun onResponseReady(generic: List<User>) {
                 tripParticipants.value = generic
             }
+        })
+    }
+
+    fun getOrganizerLocation(tripId: String) {
+        tripRepository.getOrganizerLocationFirebase(tripId, object : GenericCallback<LatLng> {
+            override fun onResponseReady(generic: LatLng) {
+                organizerLocationMutableLiveData.value = generic
+            }
+        })
+    }
+
+    fun isTripActive(tripId: String) {
+        tripRepository.isTripActiveFirebase(tripId, object : GenericCallback<Boolean> {
+            override fun onResponseReady(generic: Boolean) {
+                isTripActiveMutableLiveData.value = generic
+            }
+
         })
     }
 

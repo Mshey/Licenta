@@ -27,6 +27,7 @@ import com.example.licenta.model.User
 import com.firebase.geofire.GeoFire
 import com.firebase.geofire.GeoLocation
 import com.firebase.geofire.LocationCallback
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -60,24 +61,28 @@ class TripRepository {
                 trip.participants.forEach { it2 ->
                     if (it2.username == username) isParticipant = true
                 }
-                if (TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) >= 0 && !trip.done && (trip.organizer.username == username || isParticipant)) {
-                    tripsList.add(trip)
-                    genericCallback.onResponseReady(tripsList.toList())
-                } else {
-                    var myIndex = -1
-                    tripsList.forEachIndexed { index, it ->
-                        if (it.id == trip.id) {
-                            if (TimeUnit.MILLISECONDS.toDays(trip?.date!! - System.currentTimeMillis()) >= 0 && !trip.done && (trip.organizer.username == username || isParticipant)) {
-                                tripsList[index] = trip
-                                genericCallback.onResponseReady(tripsList.toList())
-                            } else myIndex = index
-                            return@forEachIndexed
-                        }
+                var b = false
+                var myIndex = -1
+                tripsList.forEachIndexed { index, it ->
+                    if (it.id == trip.id) {
+                        b = true
+                        myIndex = index
+                        return@forEachIndexed
                     }
-                    if (myIndex != -1) {
-                        tripsList.removeAt(myIndex)
+                }
+                if (TimeUnit.MILLISECONDS.toDays(trip.date - System.currentTimeMillis()) >= 0 && !trip.done && ((trip.organizer.username == username && !trip.active) || isParticipant)) {
+                    if (!b) {
+                        tripsList.add(trip)
                         genericCallback.onResponseReady(tripsList.toList())
                     }
+                    else {
+                        tripsList[myIndex] = trip
+                        genericCallback.onResponseReady(tripsList.toList())
+                    }
+                }
+                if (myIndex != -1) {
+                    tripsList.removeAt(myIndex)
+                    genericCallback.onResponseReady(tripsList.toList())
                 }
             }
 
@@ -171,6 +176,28 @@ class TripRepository {
             }
         }
         firebaseReference.child(TRIPS).addChildEventListener(childEventListener)
+    }
+
+    fun getActiveTripFirebase(genericCallback: GenericCallback<Trip?>) {
+        firebaseReference.child(TRIPS).addListenerForSingleValueEvent(object : ValueEventListener {
+
+            override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach {
+                    val trip = it.getValue(Trip::class.java)
+                    trip?.id = it.key!!
+                    if (trip?.active!! && trip.organizer.username == username) {
+                        genericCallback.onResponseReady(trip)
+                    }
+                }
+//                genericCallback.onResponseReady(null)
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(TAG, "onCancelled: ${p0.message}")
+//                genericCallback.onResponseReady(null)
+            }
+
+        })
     }
 
     fun getTripFirebase(genericCallback: GenericCallback<Trip>, tripId: String) {
@@ -295,13 +322,12 @@ class TripRepository {
         firebaseReference.child(TRIPS).child(tripId).child(ACTIVE).setValue(true)
     }
 
-    fun stopTrip(tripId: String, genericCallback: GenericCallback<Boolean>) {
+    fun stopTrip(tripId: String) {
         firebaseReference.child(TRIPS).child(tripId).child(ACTIVE).setValue(false)
         firebaseReference.child(TRIPS).child(tripId).child(DONE).setValue(true)
-        genericCallback.onResponseReady(true)
     }
 
-    fun updateLocation(
+    fun updateLocationFirebase(
         tripId: String,
         location: Location,
         organizer: Boolean,
@@ -328,6 +354,53 @@ class TripRepository {
     fun getTripParticipantFirebase(tripId: String, genericCallback: GenericCallback<List<User>>) {
         val participantsList: MutableList<User> = mutableListOf()
         val tripRef = firebaseReference.child(TRIPS).child(tripId).child(PARTICIPANTS)
+//        tripRef.addChildEventListener(object :ChildEventListener{
+//            override fun onCancelled(p0: DatabaseError) {
+//                //NOP
+//            }
+//
+//            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+//                //NOP
+//            }
+//
+//            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+//                val innerUser = p0.getValue(User::class.java)!!
+//                val index = p0.key!!
+//                val geoFire = GeoFire(tripRef.child(index))
+//                geoFire.getLocation(LOCATION, object : LocationCallback {
+//                    override fun onLocationResult(
+//                        key: String?,
+//                        location: GeoLocation?
+//                    ) {
+//                        if (location != null) {
+//                            innerUser.userLocation = location
+//                        } else {
+//                            Log.e(
+//                                TAG,
+//                                "There is no location for key %s in GeoFire $key"
+//                            )
+//                        }
+//                    }
+//
+//                    override fun onCancelled(databaseError: DatabaseError) {
+//                        Log.e(
+//                            TAG,
+//                            "There was an error getting the GeoFire location: $databaseError"
+//                        )
+//                    }
+//                })
+//                participantsList.add(innerUser)
+//            }
+//
+//            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+//                //NOP
+//            }
+//
+//            override fun onChildRemoved(p0: DataSnapshot) {
+//                //NOP
+//            }
+//
+//        })
         tripRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(p1: DataSnapshot) {
                 p1.children.forEachIndexed { index, it ->
@@ -367,6 +440,65 @@ class TripRepository {
                 )
             }
         })
+    }
+
+    fun getOrganizerLocationFirebase(tripId: String, genericCallback: GenericCallback<LatLng>) {
+        val tripRef = firebaseReference.child(TRIPS).child(tripId).child(ORGANIZER)
+        tripRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p1: DataSnapshot) {
+                val innerUser = p1.getValue(User::class.java)!!
+                val geoFire = GeoFire(tripRef)
+                geoFire.getLocation(LOCATION, object : LocationCallback {
+                    override fun onLocationResult(
+                        key: String?,
+                        location: GeoLocation?
+                    ) {
+                        if (location != null) {
+                            genericCallback.onResponseReady(
+                                LatLng(
+                                    location.latitude,
+                                    location.longitude
+                                )
+                            )
+                        } else {
+                            Log.e(
+                                TAG,
+                                "There is no location for key %s in GeoFire $key"
+                            )
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e(
+                            TAG,
+                            "There was an error getting the GeoFire location: $databaseError"
+                        )
+                    }
+                })
+            }
+
+            override fun onCancelled(p1: DatabaseError) {
+                Log.d(
+                    TAG,
+                    "p1, onCancelled, getTripParticipantFirebase: " + p1.message
+                )
+            }
+        })
+    }
+
+    fun isTripActiveFirebase(tripId: String, genericCallback: GenericCallback<Boolean>) {
+        firebaseReference.child(TRIPS).child(tripId).child(ACTIVE)
+            .addValueEventListener(object : ValueEventListener {
+
+                override fun onDataChange(p0: DataSnapshot) {
+                    genericCallback.onResponseReady(p0.value as Boolean)
+                }
+
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d(TAG, "onCancelled: ${p0.message}")
+                }
+
+            })
     }
 
     fun removeListenersFirebase() {

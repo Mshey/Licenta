@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_loginFragment_to_futureTripsFragment"
             app:destination="@id/futureTripsFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
@@ -101,5 +104,11 @@
         <action
             android:id="@+id/action_mapFragment_to_futureTripsFragment"
             app:destination="@id/futureTripsFragment" />
+<!--        <action-->
+<!--            android:id="@+id/action_mapFragment_to_tripDetailsFragment"-->
+<!--            app:destination="@id/tripDetailsFragment" />-->
+        <action
+            android:id="@+id/action_mapFragment_to_pastTripsFragment"
+            app:destination="@id/pastTripsFragment" />
     </fragment>
 </navigation>
