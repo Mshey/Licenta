@@ -17,7 +17,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.licenta.model.NavEvent
 import com.example.licenta.R
-import com.example.licenta.Utils.EMPTY_FIELD
 import com.example.licenta.Utils.convertDateToLong
 import com.example.licenta.Utils.convertLongToTime
 import com.example.licenta.Utils.toPx
@@ -147,15 +146,15 @@ class CreateNewTripFragment : Fragment() {
     private fun makeNewTrip() {
         var everyThingNotEmpty = true
         if (textInputEditTextTitle.text.isNullOrEmpty()) {
-            textInputEditTextTitle.error = EMPTY_FIELD
+            textInputEditTextTitle.error = getString(R.string.error_field_empty)
             everyThingNotEmpty = false
         }
         if (textInputEditTextAddress.text.isNullOrEmpty()) {
-            textInputEditTextAddress.error = EMPTY_FIELD
+            textInputEditTextAddress.error = getString(R.string.error_field_empty)
             everyThingNotEmpty = false
         }
         if (textInputEditTextDescription.text.isNullOrEmpty()) {
-            textInputEditTextDescription.error = EMPTY_FIELD
+            textInputEditTextDescription.error = getString(R.string.error_field_empty)
             everyThingNotEmpty = false
         }
         val participantsUserArray = ArrayList<User>()

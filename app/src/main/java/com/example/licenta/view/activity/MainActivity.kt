@@ -12,8 +12,6 @@ import androidx.navigation.ui.NavigationUI
 import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.view.fragment.MapFragment.Companion.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
-import com.example.licenta.view.notification.NotificationHandler
-import com.example.licenta.view.notification.NotificationReceiver
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
@@ -24,8 +22,6 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var navEvents: PublishProcessor<NavEvent>
-
-    private lateinit var notificationHandler: NotificationHandler
 
     private lateinit var disposable: Disposable
 
@@ -43,7 +39,6 @@ class MainActivity : AppCompatActivity() {
         //Link NavController with bottom Navigation
         NavigationUI.setupWithNavController(bottomNav, navController)
         //HideBottom Navigation on fragments that don't need it
-        notificationHandler = NotificationHandler(this, this)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.tripDetailsFragment ||
                 destination.id == R.id.pastTripsFragment ||
@@ -52,15 +47,9 @@ class MainActivity : AppCompatActivity() {
                 destination.id == R.id.accountFragment
             ) {
                 bottomNav.visibility = View.VISIBLE
-                notificationHandler.setNotificationShow(false)
             } else {
                 bottomNav.visibility = View.GONE
-                notificationHandler.setNotificationShow(true)
             }
-            if (destination.id == R.id.mapFragment) {
-                notificationHandler.setNotificationShow(true)
-            }
-            NotificationReceiver.setMainActivity(this)
             getLocation()
         }
 
@@ -121,9 +110,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun getLocation() {
         getLocationPermission()
-        if (getLocationPermission()) {
-            notificationHandler.sendEmptyMessage(0)
-        }
     }
 
     private fun getLocationPermission(): Boolean {

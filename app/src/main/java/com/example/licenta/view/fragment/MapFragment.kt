@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.beust.klaxon.*
 import com.example.licenta.model.NavEvent
 import com.example.licenta.R
-import com.example.licenta.Utils.ORGANIZER
 import com.example.licenta.Utils.TAG
 import com.example.licenta.viewmodel.TripViewModel
 import com.google.android.gms.common.ConnectionResult
@@ -211,7 +210,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             } else {
                 tripParticipantIndex = bundle.getInt("participant index")
                 stop_trip_button.visibility = View.VISIBLE
-                stop_trip_button.text = "Exit trip"
+                stop_trip_button.text = getString(R.string.exit_trip)
                 stop_trip_button.setOnClickListener {
                     navEvents.onNext(
                         NavEvent(
@@ -237,7 +236,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 tripViewModel.organizerLocationMutableLiveData.observe(viewLifecycleOwner, Observer {
                     if (organizerMarker == null) {
                         organizerMarker = mMap!!.addMarker(
-                            MarkerOptions().position(it).title(ORGANIZER)
+                            MarkerOptions().position(it).title(getString(R.string.organizer))
                         )
                     } else {
                         organizerMarker!!.position = it
@@ -266,7 +265,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
             .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ ->
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 val enableGpsIntent =
                     Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 startActivityForResult(

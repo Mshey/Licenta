@@ -83,4 +83,8 @@
     <string name="join_trip">Join trip</string>
     <string name="trip_id">trip id</string>
     <string name="trip_org">trip organizer</string>
+
+    <string name="error_field_empty">Field can\'t be empty!</string>
+    <string name="yes">Yes</string>
+    <string name="exit_trip">Exit trip</string>
 </resources>
