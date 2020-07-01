@@ -1,4 +1,4 @@
-package com.example.licenta
+package com.example.licenta.model
 
 class NavEvent(
     val destination: Destination

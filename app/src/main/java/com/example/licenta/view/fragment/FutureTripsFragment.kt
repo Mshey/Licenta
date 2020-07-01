@@ -9,13 +9,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager.VERTICAL
 import androidx.recyclerview.widget.RecyclerView
-import com.example.licenta.NavEvent
-import com.example.licenta.OnDataClickListener
+import com.example.licenta.model.NavEvent
+import com.example.licenta.view.OnDataClickListener
 import com.example.licenta.R
 import com.example.licenta.model.Trip
 import com.example.licenta.view.adapter.TripItemAdapter
@@ -55,10 +54,15 @@ class FutureTripsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = TripItemAdapter(object : OnDataClickListener<Trip> {
+        adapter = TripItemAdapter(object :
+            OnDataClickListener<Trip> {
             override fun onClick(ob: Trip) {
                 setFragmentResult(getString(R.string.trip), bundleOf(getString(R.string.trip) to ob.id))
-                navEvents.onNext(NavEvent(NavEvent.Destination.DETAILS))
+                navEvents.onNext(
+                    NavEvent(
+                        NavEvent.Destination.DETAILS
+                    )
+                )
             }
         })
 
@@ -81,7 +85,11 @@ class FutureTripsFragment : Fragment() {
         })
 
         add_trip.setOnClickListener {
-            navEvents.onNext(NavEvent(NavEvent.Destination.CREATE))
+            navEvents.onNext(
+                NavEvent(
+                    NavEvent.Destination.CREATE
+                )
+            )
         }
     }
 }

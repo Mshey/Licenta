@@ -15,8 +15,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
-import com.example.licenta.NavEvent
+import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.Utils.EMPTY_FIELD
 import com.example.licenta.Utils.convertDateToLong
@@ -203,7 +202,11 @@ class CreateNewTripFragment : Fragment() {
 //                                R.id.my_nav_host_fragment
 //                            )
 //                                .navigate(R.id.action_createNewTripFragment_to_futureTripsFragment)
-                            navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                            navEvents.onNext(
+                                NavEvent(
+                                    NavEvent.Destination.FUTURE
+                                )
+                            )
                         }
                     }
                 }

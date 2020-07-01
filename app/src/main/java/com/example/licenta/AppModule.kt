@@ -1,5 +1,6 @@
 package com.example.licenta
 
+import com.example.licenta.model.NavEvent
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

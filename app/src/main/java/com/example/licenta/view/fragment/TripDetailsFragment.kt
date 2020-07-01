@@ -11,7 +11,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.licenta.NavEvent
+import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.Utils.convertLongToTime
 import com.example.licenta.Utils.username
@@ -81,7 +81,11 @@ class TripDetailsFragment : Fragment() {
                             "trip lng" to trip.location.longitude
                         )
                     )
-                    navEvents.onNext(NavEvent(NavEvent.Destination.MAP))
+                    navEvents.onNext(
+                        NavEvent(
+                            NavEvent.Destination.MAP
+                        )
+                    )
                 }
             }
 
@@ -97,7 +101,11 @@ class TripDetailsFragment : Fragment() {
                             "participant index" to trip.participants.indexOf(myUser)
                         )
                     )
-                    navEvents.onNext(NavEvent(NavEvent.Destination.MAP))
+                    navEvents.onNext(
+                        NavEvent(
+                            NavEvent.Destination.MAP
+                        )
+                    )
                 }
             }
         })

@@ -9,7 +9,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
-import com.example.licenta.NavEvent
+import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.view.fragment.MapFragment.Companion.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import com.example.licenta.view.notification.NotificationHandler
@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var navEvents: PublishProcessor<NavEvent>
 
-    private val locationPermission: Boolean = false
     private lateinit var notificationHandler: NotificationHandler
 
     private lateinit var disposable: Disposable
@@ -50,8 +49,7 @@ class MainActivity : AppCompatActivity() {
                 destination.id == R.id.pastTripsFragment ||
                 destination.id == R.id.futureTripsFragment ||
                 destination.id == R.id.createNewTripFragment ||
-                destination.id == R.id.accountFragment //||
-            //destination.id == R.id.mapFragment
+                destination.id == R.id.accountFragment
             ) {
                 bottomNav.visibility = View.VISIBLE
                 notificationHandler.setNotificationShow(false)

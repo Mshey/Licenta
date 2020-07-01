@@ -11,13 +11,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import com.example.licenta.NavEvent
+import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.Utils
 import com.example.licenta.viewmodel.AuthenticationViewModel
-import com.example.licenta.viewmodel.TripViewModel
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.processors.PublishProcessor
@@ -56,7 +53,11 @@ class LoginFragment : Fragment() {
 //                    tripViewModel.tripMutableLiveData.observe(viewLifecycleOwner, Observer {
 ////                        if (it.active)
 //                        if (it == null)
-                        navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                        navEvents.onNext(
+                            NavEvent(
+                                NavEvent.Destination.FUTURE
+                            )
+                        )
 //                        else
 //                            navEvents.onNext(NavEvent(NavEvent.Destination.MAP))
 //                        else
@@ -71,7 +72,11 @@ class LoginFragment : Fragment() {
             })
         val wantToRegister = mView.findViewById<View>(R.id.registerAccount) as TextView
         wantToRegister.setOnClickListener {
-            navEvents.onNext(NavEvent(NavEvent.Destination.REGISTRATION))
+            navEvents.onNext(
+                NavEvent(
+                    NavEvent.Destination.REGISTRATION
+                )
+            )
         }
 
         val loginButton = mView.findViewById<View>(R.id.login_button) as Button
@@ -97,7 +102,11 @@ class LoginFragment : Fragment() {
                             .show()
                     }
                     canLogin -> {
-                        navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                        navEvents.onNext(
+                            NavEvent(
+                                NavEvent.Destination.FUTURE
+                            )
+                        )
                         Toast.makeText(context, "Successfully logged in!", Toast.LENGTH_LONG)
                             .show()
                     }

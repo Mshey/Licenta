@@ -189,12 +189,10 @@ class TripRepository {
                         genericCallback.onResponseReady(trip)
                     }
                 }
-//                genericCallback.onResponseReady(null)
             }
 
             override fun onCancelled(p0: DatabaseError) {
                 Log.d(TAG, "onCancelled: ${p0.message}")
-//                genericCallback.onResponseReady(null)
             }
 
         })
@@ -446,7 +444,6 @@ class TripRepository {
         val tripRef = firebaseReference.child(TRIPS).child(tripId).child(ORGANIZER)
         tripRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(p1: DataSnapshot) {
-                val innerUser = p1.getValue(User::class.java)!!
                 val geoFire = GeoFire(tripRef)
                 geoFire.getLocation(LOCATION, object : LocationCallback {
                     override fun onLocationResult(

@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.example.licenta.OnDataClickListener
+import com.example.licenta.view.OnDataClickListener
 import com.example.licenta.R
 import com.example.licenta.Utils.TAG
 import com.example.licenta.Utils.username

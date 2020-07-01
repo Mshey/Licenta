@@ -23,7 +23,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.beust.klaxon.*
-import com.example.licenta.NavEvent
+import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.Utils.ORGANIZER
 import com.example.licenta.Utils.TAG
@@ -33,7 +33,6 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
-import com.google.maps.GeoApiContext
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.processors.PublishProcessor
 import kotlinx.android.synthetic.main.fragment_map.*
@@ -58,7 +57,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var isTripOrganizer: Boolean = false
     private lateinit var currentOrganizerLatLng: LatLng
     private lateinit var destinationLatLng: LatLng
-    private lateinit var geoApiContext: GeoApiContext
     private lateinit var tripViewModel: TripViewModel
 
     override fun onCreateView(
@@ -77,7 +75,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             "maps",
             TripViewModel::class.java
         )
-        geoApiContext = GeoApiContext.Builder().apiKey(getString(R.string.map_api_key)).build()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
@@ -134,7 +131,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 stop_trip_button.visibility = View.VISIBLE
                 stop_trip_button.setOnClickListener {
                     tripViewModel.stopTrip(tripId)
-                    navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                    navEvents.onNext(
+                        NavEvent(
+                            NavEvent.Destination.FUTURE
+                        )
+                    )
                 }
 
                 val options = PolylineOptions()
@@ -212,14 +213,22 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 stop_trip_button.visibility = View.VISIBLE
                 stop_trip_button.text = "Exit trip"
                 stop_trip_button.setOnClickListener {
-                    navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                    navEvents.onNext(
+                        NavEvent(
+                            NavEvent.Destination.FUTURE
+                        )
+                    )
                 }
 
                 tripViewModel.isTripActive(tripId)
                 tripViewModel.isTripActiveMutableLiveData.observe(viewLifecycleOwner, Observer {
                     if (!it) {
                         Toast.makeText(requireContext(), "Your trip has ended!", Toast.LENGTH_LONG).show()
-                        navEvents.onNext(NavEvent(NavEvent.Destination.FUTURE))
+                        navEvents.onNext(
+                            NavEvent(
+                                NavEvent.Destination.FUTURE
+                            )
+                        )
                     }
                 })
 

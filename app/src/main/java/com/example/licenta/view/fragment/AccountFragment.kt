@@ -17,8 +17,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
-import com.example.licenta.NavEvent
+import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.Utils.helloUser
 import com.example.licenta.Utils.toPx
@@ -58,7 +57,11 @@ class AccountFragment : Fragment() {
         change_password.setOnClickListener {
 //            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
 //                .navigate(R.id.action_accountFragment_to_changePasswordFragment)
-            navEvents.onNext(NavEvent(NavEvent.Destination.CHANGEPASSWORD))
+            navEvents.onNext(
+                NavEvent(
+                    NavEvent.Destination.CHANGEPASSWORD
+                )
+            )
         }
 
         delete_account.setOnClickListener { delete() }
@@ -73,7 +76,11 @@ class AccountFragment : Fragment() {
             override fun onClick(widget: View) {
 //                Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
 //                    .navigate(R.id.action_accountFragment_to_termsFragment)
-                navEvents.onNext(NavEvent(NavEvent.Destination.TERMS))
+                navEvents.onNext(
+                    NavEvent(
+                        NavEvent.Destination.TERMS
+                    )
+                )
             }
         }
 
@@ -95,7 +102,11 @@ class AccountFragment : Fragment() {
             FirebaseAuth.getInstance().signOut()
 //            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
 //                .navigate(R.id.action_accountFragment_to_loginFragment)
-            navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
+            navEvents.onNext(
+                NavEvent(
+                    NavEvent.Destination.LOGIN
+                )
+            )
         }
     }
 
@@ -140,7 +151,11 @@ class AccountFragment : Fragment() {
 //                                        R.id.my_nav_host_fragment
 //                                    )
 //                                        .navigate(R.id.action_accountFragment_to_loginFragment)
-                                    navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
+                                    navEvents.onNext(
+                                        NavEvent(
+                                            NavEvent.Destination.LOGIN
+                                        )
+                                    )
                                 } else Toast.makeText(
                                     context,
                                     "Something went wrong!",

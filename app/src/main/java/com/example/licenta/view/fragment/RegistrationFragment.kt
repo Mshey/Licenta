@@ -8,8 +8,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
-import com.example.licenta.NavEvent
+import com.example.licenta.model.NavEvent
 import com.example.licenta.R
 import com.example.licenta.model.RegistrationState
 import com.example.licenta.viewmodel.AuthenticationViewModel
@@ -42,12 +41,20 @@ class RegistrationFragment : Fragment() {
 //            val navController =
 //                Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
 //            navController.navigate(R.id.action_registrationFragment_to_loginFragment)
-            navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
+            navEvents.onNext(
+                NavEvent(
+                    NavEvent.Destination.LOGIN
+                )
+            )
         }
         terms_text.setOnClickListener {
 //            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
 ////                .navigate(R.id.action_registrationFragment_to_termsFragment)
-            navEvents.onNext(NavEvent(NavEvent.Destination.TERMS))
+            navEvents.onNext(
+                NavEvent(
+                    NavEvent.Destination.TERMS
+                )
+            )
         }
         val registerButton = mView.findViewById<View>(R.id.register_button) as Button
         registerButton.setOnClickListener { registerUser() }
@@ -117,7 +124,11 @@ class RegistrationFragment : Fragment() {
                         ).show()
 //                        Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
 //                            .navigate(R.id.action_registrationFragment_to_loginFragment)
-                        navEvents.onNext(NavEvent(NavEvent.Destination.LOGIN))
+                        navEvents.onNext(
+                            NavEvent(
+                                NavEvent.Destination.LOGIN
+                            )
+                        )
                     }
                     RegistrationState.UNSUCCESSFUL -> {
                         Toast.makeText(
