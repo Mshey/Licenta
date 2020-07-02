@@ -74,6 +74,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             "maps",
             TripViewModel::class.java
         )
+        locationPermission
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
@@ -245,12 +246,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
-        val mMapView: MapView = map
-        mMapView.onCreate(savedInstanceState)
-        mMapView.onResume()
-        mMapView.getMapAsync(this) //when you already implement OnMapReadyCallback in your fragment
-
-        locationPermission
+        val mapView: MapView = map //from layout
+        mapView.onCreate(savedInstanceState)
+        mapView.onResume()
+        mapView.getMapAsync(this) //when you already implement OnMapReadyCallback in your fragment
     }
 
     private fun checkMapServices(): Boolean {

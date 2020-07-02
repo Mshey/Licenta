@@ -352,53 +352,6 @@ class TripRepository {
     fun getTripParticipantFirebase(tripId: String, genericCallback: GenericCallback<List<User>>) {
         val participantsList: MutableList<User> = mutableListOf()
         val tripRef = firebaseReference.child(TRIPS).child(tripId).child(PARTICIPANTS)
-//        tripRef.addChildEventListener(object :ChildEventListener{
-//            override fun onCancelled(p0: DatabaseError) {
-//                //NOP
-//            }
-//
-//            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-//                //NOP
-//            }
-//
-//            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-//                val innerUser = p0.getValue(User::class.java)!!
-//                val index = p0.key!!
-//                val geoFire = GeoFire(tripRef.child(index))
-//                geoFire.getLocation(LOCATION, object : LocationCallback {
-//                    override fun onLocationResult(
-//                        key: String?,
-//                        location: GeoLocation?
-//                    ) {
-//                        if (location != null) {
-//                            innerUser.userLocation = location
-//                        } else {
-//                            Log.e(
-//                                TAG,
-//                                "There is no location for key %s in GeoFire $key"
-//                            )
-//                        }
-//                    }
-//
-//                    override fun onCancelled(databaseError: DatabaseError) {
-//                        Log.e(
-//                            TAG,
-//                            "There was an error getting the GeoFire location: $databaseError"
-//                        )
-//                    }
-//                })
-//                participantsList.add(innerUser)
-//            }
-//
-//            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-//                //NOP
-//            }
-//
-//            override fun onChildRemoved(p0: DataSnapshot) {
-//                //NOP
-//            }
-//
-//        })
         tripRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(p1: DataSnapshot) {
                 p1.children.forEachIndexed { index, it ->
