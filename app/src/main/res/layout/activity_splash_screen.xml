@@ -10,19 +10,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:scaleType="fitXY"
-        app:srcCompat="@drawable/background_airplane" />
-
-    <!--    <ProgressBar-->
-    <!--        android:id="@+id/progressBar"-->
-    <!--        style="?android:attr/progressBarStyleHorizontal"-->
-    <!--        android:layout_width="@dimen/progressBarWidth"-->
-    <!--        android:layout_height="@dimen/progressBarHeight"-->
-    <!--        android:layout_marginBottom="@dimen/progressBarMarginBottom"-->
-    <!--        android:progressDrawable="@drawable/progress_bar_drawable"-->
-    <!--        app:layout_constraintBottom_toBottomOf="@id/splash_screen_imageView"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintHorizontal_bias="@dimen/progressBarConstraintHorizontalBias"-->
-    <!--        app:layout_constraintStart_toStartOf="parent" />-->
+        app:srcCompat="@drawable/background_airplane"
+        android:contentDescription="@string/image_for_splash_screen" />
 
     <ProgressBar
         android:id="@+id/progressBar"

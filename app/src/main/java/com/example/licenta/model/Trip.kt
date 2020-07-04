@@ -3,11 +3,11 @@ package com.example.licenta.model
 import com.firebase.geofire.GeoLocation
 
 data class Trip(
-    val title: String,
-    val address: String,
-    val date: Long,
-    val description: String,
-    val participants: List<User>
+    val title: String = "",
+    val address: String = "",
+    val date: Long = 0,
+    val description: String = "",
+    val participants: List<User> = emptyList()
 ) {
     var organizer: User = User("")
     var location: GeoLocation = GeoLocation(0.0, 0.0)

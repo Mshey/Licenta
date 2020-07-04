@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.licenta.view.fragment.LoginFragment"
-        android:label="LoginFragment">
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_registrationFragment"
             app:destination="@id/registrationFragment" />
         <action
             android:id="@+id/action_loginFragment_to_futureTripsFragment"
-            app:destination="@id/futureTripsFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_mapFragment"
-            app:destination="@id/mapFragment" />
+            app:destination="@id/navigation4" />
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
         android:name="com.example.licenta.view.fragment.RegistrationFragment"
-        android:label="RegistrationFragment">
+        android:label="RegistrationFragment"
+        tools:layout="@layout/fragment_registration">
         <action
             android:id="@+id/action_registrationFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -30,31 +30,10 @@
             app:destination="@id/termsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/futureTripsFragment"
-        android:name="com.example.licenta.view.fragment.FutureTripsFragment"
-        android:label="FutureTripsFragment" >
-        <action
-            android:id="@+id/action_futureTripsFragment_to_createNewTripFragment"
-            app:destination="@id/createNewTripFragment" />
-        <action
-            android:id="@+id/action_futureTripsFragment_to_tripDetailsFragment"
-            app:destination="@id/tripDetailsFragment" />
-        <action
-            android:id="@+id/action_futureTripsFragment_to_mapFragment"
-            app:destination="@id/mapFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/createNewTripFragment"
-        android:name="com.example.licenta.view.fragment.CreateNewTripFragment"
-        android:label="CreateNewTripFragment" >
-        <action
-            android:id="@+id/action_createNewTripFragment_to_futureTripsFragment"
-            app:destination="@id/futureTripsFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/accountFragment"
         android:name="com.example.licenta.view.fragment.AccountFragment"
-        android:label="AccountFragment" >
+        android:label="AccountFragment"
+        tools:layout="@layout/fragment_account">
         <action
             android:id="@+id/action_accountFragment_to_termsFragment"
             app:destination="@id/termsFragment" />
@@ -68,7 +47,8 @@
     <fragment
         android:id="@+id/termsFragment"
         android:name="com.example.licenta.view.fragment.TermsFragment"
-        android:label="TermsFragment" >
+        android:label="TermsFragment"
+        tools:layout="@layout/fragment_terms_and_conditions">
         <action
             android:id="@+id/action_termsFragment_to_registrationFragment"
             app:destination="@id/registrationFragment" />
@@ -76,39 +56,63 @@
     <fragment
         android:id="@+id/changePasswordFragment"
         android:name="com.example.licenta.view.fragment.ChangePasswordFragment"
-        android:label="ChangePasswordFragment" >
+        android:label="ChangePasswordFragment"
+        tools:layout="@layout/fragment_change_password">
         <action
             android:id="@+id/action_changePasswordFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/pastTripsFragment"
-        android:name="com.example.licenta.view.fragment.PastTripsFragment"
-        android:label="PastTripsFragment" >
-        <action
-            android:id="@+id/action_pastTripsFragment_to_tripDetailsFragment"
-            app:destination="@id/tripDetailsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/tripDetailsFragment"
-        android:name="com.example.licenta.view.fragment.TripDetailsFragment"
-        android:label="TripDetailsFragment" >
-        <action
-            android:id="@+id/action_tripDetailsFragment_to_mapFragment"
-            app:destination="@id/mapFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/mapFragment"
-        android:name="com.example.licenta.view.fragment.MapFragment"
-        android:label="MapFragment" >
-        <action
-            android:id="@+id/action_mapFragment_to_futureTripsFragment"
-            app:destination="@id/futureTripsFragment" />
-<!--        <action-->
-<!--            android:id="@+id/action_mapFragment_to_tripDetailsFragment"-->
-<!--            app:destination="@id/tripDetailsFragment" />-->
-        <action
-            android:id="@+id/action_mapFragment_to_pastTripsFragment"
-            app:destination="@id/pastTripsFragment" />
-    </fragment>
+
+    <navigation
+        android:id="@+id/navigation4"
+        app:startDestination="@id/futureTripsFragment" >
+        <fragment
+            android:id="@+id/futureTripsFragment"
+            android:name="com.example.licenta.view.fragment.FutureTripsFragment"
+            android:label="FutureTripsFragment"
+            tools:layout="@layout/fragment_future_trips">
+            <action
+                android:id="@+id/action_futureTripsFragment_to_createNewTripFragment"
+                app:destination="@id/createNewTripFragment" />
+            <action
+                android:id="@+id/action_futureTripsFragment_to_tripDetailsFragment"
+                app:destination="@id/tripDetailsFragment" />
+        </fragment>
+        <fragment
+            android:id="@+id/pastTripsFragment"
+            android:name="com.example.licenta.view.fragment.PastTripsFragment"
+            android:label="PastTripsFragment"
+            tools:layout="@layout/fragment_past_trips">
+            <action
+                android:id="@+id/action_pastTripsFragment_to_tripDetailsFragment"
+                app:destination="@id/tripDetailsFragment" />
+        </fragment>
+        <fragment
+            android:id="@+id/tripDetailsFragment"
+            android:name="com.example.licenta.view.fragment.TripDetailsFragment"
+            android:label="TripDetailsFragment"
+            tools:layout="@layout/fragment_trip_details">
+            <action
+                android:id="@+id/action_tripDetailsFragment_to_mapFragment"
+                app:destination="@id/mapFragment" />
+        </fragment>
+        <fragment
+            android:id="@+id/createNewTripFragment"
+            android:name="com.example.licenta.view.fragment.CreateNewTripFragment"
+            android:label="CreateNewTripFragment"
+            tools:layout="@layout/fragment_new_trip">
+            <action
+                android:id="@+id/action_createNewTripFragment_to_futureTripsFragment"
+                app:destination="@id/futureTripsFragment" />
+        </fragment>
+        <fragment
+            android:id="@+id/mapFragment"
+            android:name="com.example.licenta.view.fragment.MapFragment"
+            android:label="MapFragment"
+            tools:layout="@layout/fragment_map">
+            <action
+                android:id="@+id/action_mapFragment_to_futureTripsFragment"
+                app:destination="@id/futureTripsFragment" />
+        </fragment>
+    </navigation>
 </navigation>

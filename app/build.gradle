@@ -39,7 +39,6 @@ android {
 
 final NavigationVersion = "2.3.0-rc01"
 final LifecycleVersion = "2.2.0"
-final LoggingInterceptorVersion = "4.0.1"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

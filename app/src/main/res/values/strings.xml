@@ -2,33 +2,24 @@
     <string name="app_name">Guide Us</string>
     <string name="map_api_key">AIzaSyBuxDRkVitc3HEBWH4iHCFtDmluXS9VmOg</string>
 
-    <!-- Login strings-->
-    <string name="hint_name">Name</string>
-    <string name="hint_email">Email</string>
-    <string name="hint_password">Password</string>
-    <string name="hint_confirm_password">Confirm Password</string>
-    <string name="text_login">Login</string>
-    <string name="text_register">Register</string>
-    <string name="error_message_name">Enter Full Name</string>
-    <string name="error_message_email">Enter Valid Email</string>
-    <string name="error_message_password">Enter Password</string>
-    <string name="success_message">Registration Successful</string>
+    <string name="image_for_splash_screen">Image for Splash Screen</string>
+
+    <!-- Login and Registration strings-->
     <string name="text_not_member">No account yet? Create one</string>
-    <string name="text_already_member">Already a member? Login</string>
-    <string name="error_email_exists">Email Already Exists</string>
-    <string name="error_password_match">Password Does Not Matches</string>
-    <string name="error_valid_email_password">Wrong Email or Password</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="i_accept_the_terms_and_conditions">I accept the terms and conditions</string>
+    <string name="you_have_an_account_login">You have an account? Login!</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="update_password">Update password</string>
 
     <!-- Bottom navigation-->
     <string name="my_account">My account</string>
     <string name="future_trips">Future trips</string>
     <string name="past_trips">Past trips</string>
-
-    <string name="my_trip">My trip</string>
-    <string name="description_in_a_few_lines">Description in a few lines</string>
-    <string name="organizer">Organizer</string>
-    <string name="default_image_of_a_trip_or_added_by_user">Default image of a trip or added by user.</string>
-    <string name="add_new_trip">Add new trip</string>
 
     <!-- MY account strings -->
     <string name="my_info">My info</string>
@@ -44,15 +35,6 @@
 
     <string name="terms">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ut finibus risus. Praesent mollis facilisis augue at sodales. Donec eget consequat sapien, eget hendrerit sem. Aliquam ullamcorper sodales augue. Aliquam commodo diam magna. Etiam tortor eros, cursus nec leo vel, ultrices sollicitudin lectus. Donec pulvinar, nunc ac consectetur mollis, eros felis pellentesque eros, quis vestibulum nunc leo sed orci. Curabitur vel justo et nisl dictum iaculis. Etiam hendrerit diam, sed faucibus magna hendrerit consectetur. Sed finibus posuere ex, vel vestibulum mi accumsan vitae. Cras cursus purus nec posuere tincidunt. Maecenas nec porta purus. Donec sed felis quis justo condimentum hendrerit et quis dolor. Curabitur maximus lectus sed augue euismod lacinia. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Curabitur tristique nisi sit amet nisi placerat scelerisque. Sed odio diam, congue ut lectus vel, elementum fringilla tellus.</string>
 
-    <string name="email">Email</string>
-    <string name="password">Password</string>
-    <string name="confirm_password">Confirm Password</string>
-    <string name="i_accept_the_terms_and_conditions">I accept the terms and conditions</string>
-    <string name="you_have_an_account_login">You have an account? Login!</string>
-    <string name="register">Register</string>
-    <string name="username">Username</string>
-    <string name="update_password">Update password</string>
-
     <!-- Create new trip strings -->
     <string name="empty_part_list_error_message">You must add at least one participant!</string>
     <string name="organizer_in_participants_error_message">You can\'t participate on your own trip!</string>
@@ -64,11 +46,6 @@
     <string name="icon_for_participants">Icon for participants</string>
     <string name="create_new_trip">Create new trip</string>
 
-    <!-- Notification strings -->
-    <string name="notificationTreasureNear">Treasures are near</string>
-    <string name="notificationShowOnMap">Show on map</string>
-    <string name="show_map">Show map</string>
-
     <!-- Trip strings -->
     <string name="trip">trip</string>
     <string name="title">Title</string>
@@ -76,6 +53,12 @@
     <string name="date">Date</string>
     <string name="description">Description</string>
     <string name="participants">Participants</string>
+
+    <string name="my_trip">My trip</string>
+    <string name="description_in_a_few_lines">Description in a few lines</string>
+    <string name="organizer">Organizer</string>
+    <string name="default_image_of_a_trip_or_added_by_user">Default image of a trip or added by user.</string>
+    <string name="add_new_trip">Add new trip</string>
 
     <!-- Trip details strings -->
     <string name="start_trip">Start trip</string>

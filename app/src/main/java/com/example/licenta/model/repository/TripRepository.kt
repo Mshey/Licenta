@@ -4,15 +4,14 @@ import android.content.Context
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.example.licenta.Utils.ACTIVE
 import com.example.licenta.Utils.ADDRESS
 import com.example.licenta.Utils.DATE
 import com.example.licenta.Utils.DESCRIPTION
+import com.example.licenta.Utils.DESTINATION
 import com.example.licenta.Utils.DONE
 import com.example.licenta.Utils.LOCATION
 import com.example.licenta.Utils.ORGANIZER
-import com.example.licenta.Utils.PARTICIPANT
 import com.example.licenta.Utils.PARTICIPANTS
 import com.example.licenta.Utils.TAG
 import com.example.licenta.Utils.TITLE
@@ -205,7 +204,7 @@ class TripRepository {
                 val trip = p0.getValue(Trip::class.java)
                 trip?.id = tripId
                 val geoFire = GeoFire(tripRef)
-                geoFire.getLocation(tripId, object : LocationCallback {
+                geoFire.getLocation(DESTINATION, object : LocationCallback {
                     override fun onLocationResult(
                         key: String?,
                         location: GeoLocation?
@@ -236,28 +235,20 @@ class TripRepository {
         })
     }
 
-    fun checkIfUserExistsFirebase(user: String): MutableLiveData<Boolean> {
-        val userExistsMutableLiveData: MutableLiveData<Boolean> =
-            MutableLiveData<Boolean>()
+    fun checkIfUserExistsFirebase(user: String, genericCallback: GenericCallback<Boolean>){
         firebaseReference.child(USERS).child(user)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(p0: DataSnapshot) {
-                    userExistsMutableLiveData.value = p0.value != null
+                    genericCallback.onResponseReady(p0.value != null)
                 }
 
                 override fun onCancelled(p0: DatabaseError) {
-                    userExistsMutableLiveData.value = false
+                    genericCallback.onResponseReady(false)
                 }
             })
-        return userExistsMutableLiveData
     }
 
-    fun addNewTripToFirebase(
-        trip: Trip,
-        context: Context
-    ): MutableLiveData<List<TripState>> {
-        val addTripToFirebaseMutableLiveData: MutableLiveData<List<TripState>> =
-            MutableLiveData<List<TripState>>()
+    fun addNewTripToFirebase(trip: Trip, context: Context, genericCallback: GenericCallback<List<TripState>>) {
         val tripStateList: MutableList<TripState> = mutableListOf()
         val geoCoder = Geocoder(context, Locale.getDefault())
         val addressList =
@@ -273,7 +264,6 @@ class TripRepository {
             } else {
                 trip.organizer = User(username)
 
-                val userRef = firebaseReference.child(USERS)
                 val tripRef =
                     firebaseReference.child(TRIPS)
                         .push()
@@ -292,28 +282,17 @@ class TripRepository {
                         USERNAME
                     ).setValue(it.username)
                 }
-                val id = tripRef.key
                 val geoFire = GeoFire(tripRef)
                 geoFire.setLocation(
-                    id,
+                    DESTINATION,
                     GeoLocation(trip.location.latitude, trip.location.longitude)
                 )
-                userRef.child(username).child(ORGANIZER)
-                    .child(id!!)
-                    .setValue(true)
-                trip.participants.forEach {
-                    userRef.child(it.username)
-                        .child(PARTICIPANT).child(id)
-                        .setValue(true)
-                }
                 tripStateList.add(TripState.SUCCESS)
             }
         } else {
             tripStateList.add(TripState.WRONG_ADDRESS)
         }
-        addTripToFirebaseMutableLiveData.value = tripStateList
-
-        return addTripToFirebaseMutableLiveData
+        genericCallback.onResponseReady(tripStateList)
     }
 
     fun startTrip(tripId: String) {
@@ -325,12 +304,7 @@ class TripRepository {
         firebaseReference.child(TRIPS).child(tripId).child(DONE).setValue(true)
     }
 
-    fun updateLocationFirebase(
-        tripId: String,
-        location: Location,
-        organizer: Boolean,
-        tripParticipantIndex: Int
-    ) {
+    fun updateLocationFirebase(tripId: String, location: Location, organizer: Boolean, tripParticipantIndex: Int) {
         if (organizer) {
             val organizerRef = firebaseReference.child(TRIPS).child(tripId).child(ORGANIZER)
             val geoFire = GeoFire(organizerRef)
@@ -449,10 +423,6 @@ class TripRepository {
                 }
 
             })
-    }
-
-    fun removeListenersFirebase() {
-        firebaseReference.child(TRIPS).removeEventListener(childEventListener)
     }
 
     companion object {

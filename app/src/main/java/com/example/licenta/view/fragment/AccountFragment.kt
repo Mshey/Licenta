@@ -55,8 +55,6 @@ class AccountFragment : Fragment() {
 
 
         change_password.setOnClickListener {
-//            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-//                .navigate(R.id.action_accountFragment_to_changePasswordFragment)
             navEvents.onNext(
                 NavEvent(
                     NavEvent.Destination.CHANGEPASSWORD
@@ -74,8 +72,6 @@ class AccountFragment : Fragment() {
 
         val termsClickableSpan: ClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
-//                Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-//                    .navigate(R.id.action_accountFragment_to_termsFragment)
                 navEvents.onNext(
                     NavEvent(
                         NavEvent.Destination.TERMS
@@ -100,8 +96,6 @@ class AccountFragment : Fragment() {
         logout_button.setOnClickListener {
             helloUser = ""
             FirebaseAuth.getInstance().signOut()
-//            Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-//                .navigate(R.id.action_accountFragment_to_loginFragment)
             navEvents.onNext(
                 NavEvent(
                     NavEvent.Destination.LOGIN
@@ -136,7 +130,7 @@ class AccountFragment : Fragment() {
                                 AuthenticationViewModel::class.java
                             )
                         authenticationViewModel.deleteAccount(input.text.toString())
-                        authenticationViewModel.deleteAccountLiveData?.observe(
+                        authenticationViewModel.deleteAccountLiveData.observe(
                             viewLifecycleOwner,
                             Observer { del ->
                                 if (del) {
@@ -146,11 +140,6 @@ class AccountFragment : Fragment() {
                                         Toast.LENGTH_LONG
                                     )
                                         .show()
-//                                    Navigation.findNavController(
-//                                        requireActivity(),
-//                                        R.id.my_nav_host_fragment
-//                                    )
-//                                        .navigate(R.id.action_accountFragment_to_loginFragment)
                                     navEvents.onNext(
                                         NavEvent(
                                             NavEvent.Destination.LOGIN

@@ -21,6 +21,7 @@ object Utils {
     const val TRIPS: String = "trips"
     const val PARTICIPANT: String = "participant"
     const val ADDRESS: String = "address"
+    const val DESTINATION: String = "destination"
     const val TITLE: String = "title"
     const val ORGANIZER: String = "organizer"
     const val LOCATION: String = "location"
@@ -32,9 +33,6 @@ object Utils {
 
     var username = ""
     var helloUser = ""
-
-    const val NOTIFICATION_ID = 1
-    const val CHANNEL_ID = "myChannel"
 
     // Int.toDp(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()
     fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_login"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_airplane"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".view.fragment.LoginFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="@dimen/secondaryLayoutWidth"
@@ -24,7 +26,7 @@
             android:layout_marginTop="107dp"
             android:background="@drawable/rounded_corner_grey"
             android:gravity="center"
-            android:hint="Email"
+            android:hint="@string/email"
             android:textColor="#99000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +39,7 @@
             android:layout_marginTop="46dp"
             android:background="@drawable/rounded_corner_grey"
             android:gravity="center"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword"
             android:textColor="#99000000"
             app:layout_constraintEnd_toEndOf="parent"
@@ -47,10 +49,10 @@
         <TextView
             android:id="@+id/registerAccount"
             android:layout_width="wrap_content"
-            android:layout_height="15dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="42dp"
             android:gravity="center"
-            android:text="You don't have an account? Create one!"
+            android:text="@string/text_not_member"
             android:textColor="@color/fadedTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +65,7 @@
             android:layout_marginTop="130dp"
             android:background="@drawable/rounded_button_with_shadow"
             android:elevation="@dimen/loginElevation"
-            android:text="Login"
+            android:text="@string/login"
             android:textColor="@color/fadedTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

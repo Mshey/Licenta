@@ -84,7 +84,7 @@ class RegistrationFragment : Fragment() {
             confirmPassword,
             acceptTerms.isChecked
         )
-        authenticationViewModel.registerLiveData?.observe(
+        authenticationViewModel.registerLiveData.observe(
             viewLifecycleOwner,
             Observer {
                 when (it) {

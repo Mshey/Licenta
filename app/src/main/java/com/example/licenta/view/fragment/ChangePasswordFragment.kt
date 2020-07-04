@@ -42,7 +42,7 @@ class ChangePasswordFragment : Fragment() {
                 oldPasswordEditTextRegister.text.toString(),
                 newPasswordEditTextRegister.text.toString()
             )
-            authenticationViewModel.changePasswordLiveData?.observe(
+            authenticationViewModel.changePasswordLiveData.observe(
                 viewLifecycleOwner,
                 Observer { pass ->
                     if (pass) {

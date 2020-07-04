@@ -4,6 +4,6 @@ class NavEvent(
     val destination: Destination
 ) {
     enum class Destination {
-        REGISTRATION, LOGIN, MYACCOUNT, TERMS, CHANGEPASSWORD, FUTURE, PAST, CREATE, DETAILS, MAP
+        REGISTRATION, LOGIN, MYACCOUNT, TERMS, CHANGEPASSWORD, FUTURE, CREATE, DETAILS, MAP
     }
 }

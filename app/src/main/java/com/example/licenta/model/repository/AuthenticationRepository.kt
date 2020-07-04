@@ -1,12 +1,12 @@
 package com.example.licenta.model.repository
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.example.licenta.Utils.ACCOUNTS
 import com.example.licenta.Utils.TAG
 import com.example.licenta.Utils.USERS
 import com.example.licenta.Utils.isEmailValid
 import com.example.licenta.Utils.username
+import com.example.licenta.model.GenericCallback
 import com.example.licenta.model.RegistrationState
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -17,22 +17,19 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-
 class AuthenticationRepository {
     var firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     val firebaseReference = FirebaseDatabase.getInstance().reference
 
-    fun checkIfUserIsAuthenticatedInFirebase(): MutableLiveData<Boolean>? {
-        val isUserAuthenticateInFirebaseMutableLiveData: MutableLiveData<Boolean> =
-            MutableLiveData<Boolean>()
+    fun checkIfUserIsAuthenticatedInFirebase(genericCallback: GenericCallback<Boolean>) {
         val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
         if (firebaseUser == null) {
-            isUserAuthenticateInFirebaseMutableLiveData.setValue(false)
+            genericCallback.onResponseReady(false)
         } else {
-            isUserAuthenticateInFirebaseMutableLiveData.value = true
+            genericCallback.onResponseReady(true)
             firebaseReference.child(ACCOUNTS)
                 .child(firebaseAuth.currentUser?.uid!!)
-                .addValueEventListener(object : ValueEventListener {
+                .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         username = dataSnapshot.value as String
                     }
@@ -42,12 +39,9 @@ class AuthenticationRepository {
                     }
                 })
         }
-        return isUserAuthenticateInFirebaseMutableLiveData
     }
 
-    fun loginFirebase(email: String, password: String): MutableLiveData<Boolean>? {
-        val loginFirebaseMutableLiveData: MutableLiveData<Boolean> =
-            MutableLiveData<Boolean>()
+    fun loginFirebase(email: String, password: String, genericCallback: GenericCallback<Boolean?>) {
         if (email.isNotEmpty() && password.isNotEmpty()) {
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -63,15 +57,14 @@ class AuthenticationRepository {
                                     Log.d(TAG, "onCancelled: " + p0.message)
                                 }
                             })
-                        loginFirebaseMutableLiveData.setValue(true)
+                        genericCallback.onResponseReady(true)
                     } else {
-                        loginFirebaseMutableLiveData.setValue(false)
+                        genericCallback.onResponseReady(false)
                     }
                 }
         } else {
-            loginFirebaseMutableLiveData.setValue(null)
+            genericCallback.onResponseReady(null)
         }
-        return loginFirebaseMutableLiveData
     }
 
     fun registerFirebase(
@@ -79,10 +72,8 @@ class AuthenticationRepository {
         username: String,
         password: String,
         confirmPassword: String,
-        acceptedTerms: Boolean
-    ): MutableLiveData<RegistrationState>? {
-        val registerFirebaseMutableLiveData: MutableLiveData<RegistrationState> =
-            MutableLiveData<RegistrationState>()
+        acceptedTerms: Boolean, genericCallback: GenericCallback<RegistrationState>
+    ) {
         if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
             if (isEmailValid(email)) {
                 if (acceptedTerms) {
@@ -93,8 +84,7 @@ class AuthenticationRepository {
                                     var usernameExists = false
                                     p0.children.forEach {
                                         if (it.value?.equals(username)!!) {
-                                            registerFirebaseMutableLiveData.value =
-                                                RegistrationState.USERNAME_EXISTS
+                                            genericCallback.onResponseReady(RegistrationState.USERNAME_EXISTS)
                                             usernameExists = true
                                         }
                                     }
@@ -108,7 +98,7 @@ class AuthenticationRepository {
                                                     firebaseReference.child(USERS)
                                                         .child(username)
                                                         .setValue(0)
-                                                    registerFirebaseMutableLiveData.setValue(
+                                                    genericCallback.onResponseReady(
                                                         RegistrationState.SUCCESSFUL
                                                     )
                                                 } else {
@@ -116,44 +106,40 @@ class AuthenticationRepository {
                                                         TAG,
                                                         "Error registering: " + task.exception
                                                     )
-                                                    registerFirebaseMutableLiveData.setValue(
+                                                    genericCallback.onResponseReady(
                                                         RegistrationState.UNSUCCESSFUL
                                                     )
                                                 }
                                             }
                                     } else {
-                                        registerFirebaseMutableLiveData.value =
-                                            RegistrationState.USERNAME_EXISTS
+                                        genericCallback.onResponseReady(RegistrationState.USERNAME_EXISTS)
                                     }
                                 }
 
                                 override fun onCancelled(p0: DatabaseError) {
                                     Log.d(TAG, "username onCancelled: " + p0.message)
-                                    registerFirebaseMutableLiveData.value =
-                                        RegistrationState.UNSUCCESSFUL
+                                    genericCallback.onResponseReady(RegistrationState.UNSUCCESSFUL)
                                 }
                             })
                     } else {
-                        registerFirebaseMutableLiveData.setValue(RegistrationState.PASSWORDS_NOT_EQUAL)
+                        genericCallback.onResponseReady(RegistrationState.PASSWORDS_NOT_EQUAL)
                     }
                 } else {
-                    registerFirebaseMutableLiveData.setValue(RegistrationState.NOT_ACCEPTED_TERMS)
+                    genericCallback.onResponseReady(RegistrationState.NOT_ACCEPTED_TERMS)
                 }
             } else {
-                registerFirebaseMutableLiveData.setValue(RegistrationState.NOT_VALID_EMAIL)
+                genericCallback.onResponseReady(RegistrationState.NOT_VALID_EMAIL)
             }
         } else {
-            registerFirebaseMutableLiveData.setValue(RegistrationState.CREDENTIALS_NOT_OK)
+            genericCallback.onResponseReady(RegistrationState.CREDENTIALS_NOT_OK)
         }
-        return registerFirebaseMutableLiveData
     }
 
     fun changePasswordFirebase(
         oldPassword: String,
-        newPassword: String
-    ): MutableLiveData<Boolean>? {
-        val changePasswordFirebaseMutableLiveData: MutableLiveData<Boolean> =
-            MutableLiveData<Boolean>()
+        newPassword: String,
+        genericCallback: GenericCallback<Boolean>
+    ) {
         val user = firebaseAuth.currentUser
         val email: String = user?.email.toString()
         val credential: AuthCredential = EmailAuthProvider.getCredential(email, oldPassword)
@@ -161,26 +147,24 @@ class AuthenticationRepository {
             if (task1.isSuccessful) {
                 user.updatePassword(newPassword).addOnCompleteListener { task2 ->
                     if (task2.isSuccessful) {
-                        changePasswordFirebaseMutableLiveData.setValue(true)
-                    } else changePasswordFirebaseMutableLiveData.setValue(false)
+                        genericCallback.onResponseReady(true)
+                    } else genericCallback.onResponseReady(false)
                 }
-            } else changePasswordFirebaseMutableLiveData.setValue(false)
+            } else genericCallback.onResponseReady(false)
         }
-        return changePasswordFirebaseMutableLiveData
     }
 
-    fun deleteAccountFirebase(password: String): MutableLiveData<Boolean> {
-        val deleteAccountFirebaseMutableLiveData: MutableLiveData<Boolean> =
-            MutableLiveData<Boolean>()
-        val user = FirebaseAuth.getInstance().currentUser
-        val email: String = user?.email.toString()
+    fun deleteAccountFirebase(password: String, genericCallback: GenericCallback<Boolean>) {
+        val user = firebaseAuth.currentUser
+        firebaseReference.child(ACCOUNTS).child(user!!.uid).removeValue()
+        val email: String = user.email.toString()
         val credential: AuthCredential = EmailAuthProvider.getCredential(email, password)
-        user?.reauthenticate(credential)?.addOnCompleteListener { task1 ->
+        user.reauthenticate(credential).addOnCompleteListener { task1 ->
             if (task1.isSuccessful) {
                 val uid = firebaseAuth.currentUser?.uid
                 user.delete().addOnCompleteListener { task2 ->
                     if (task2.isSuccessful) {
-                        deleteAccountFirebaseMutableLiveData.value = true
+                        genericCallback.onResponseReady(true)
                         val ref = FirebaseDatabase.getInstance().reference
                         ref.child(ACCOUNTS)
                             .child(uid!!)
@@ -202,11 +186,10 @@ class AuthenticationRepository {
                             })
                         ref.child(ACCOUNTS)
                             .child(uid).removeValue()
-                    } else deleteAccountFirebaseMutableLiveData.setValue(false)
+                    } else genericCallback.onResponseReady(false)
                 }
-            } else deleteAccountFirebaseMutableLiveData.setValue(false)
+            } else genericCallback.onResponseReady(false)
         }
-        return deleteAccountFirebaseMutableLiveData
     }
 
     companion object {

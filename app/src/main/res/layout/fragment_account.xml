@@ -72,74 +72,6 @@
             app:layout_constraintTop_toBottomOf="@id/line1" />
 
         <TextView
-            android:id="@+id/be_informed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/account_grey"
-            android:padding="10dp"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:text="@string/be_informed"
-            android:textColor="@color/text_color"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/delete_account" />
-
-        <TextView
-            android:id="@+id/push_notifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:text="@string/push_notifications"
-            android:textColor="@color/text_color"
-            android:textSize="30sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/be_informed" />
-
-        <View
-            android:id="@+id/line2"
-            android:layout_width="380dp"
-            android:layout_height="1dp"
-            android:background="@color/text_color"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/push_notifications" />
-
-        <TextView
-            android:id="@+id/news_letters"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:text="@string/news_letters"
-            android:textColor="@color/text_color"
-            android:textSize="30sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/line2" />
-
-        <Switch
-            android:id="@+id/notification_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="30dp"
-            app:layout_constraintBottom_toTopOf="@id/line2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/be_informed" />
-
-        <Switch
-            android:id="@+id/news_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="30dp"
-            app:layout_constraintBottom_toTopOf="@id/confidential"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/line2" />
-
-        <TextView
             android:id="@+id/confidential"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -152,7 +84,7 @@
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/news_letters" />
+            app:layout_constraintTop_toBottomOf="@id/delete_account" />
 
         <TextView
             android:id="@+id/confidential_text"

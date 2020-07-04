@@ -21,8 +21,8 @@ class TripViewModel : ViewModel() {
     var organizerLocationMutableLiveData: MutableLiveData<LatLng> = MutableLiveData()
     var isTripActiveMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
-    var newTripLiveData: LiveData<List<TripState>>? = null
-    var userLiveData: LiveData<Boolean>? = null
+    var newTripLiveData: MutableLiveData<List<TripState>> = MutableLiveData()
+    var userLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     var tripParticipants: MutableLiveData<List<User>> = MutableLiveData()
 
@@ -42,15 +42,6 @@ class TripViewModel : ViewModel() {
                     pastTripsMutableLiveData.value = generic
                 }
             })
-    }
-
-    fun getActiveTrip() {
-        tripRepository.getActiveTripFirebase(object : GenericCallback<Trip?> {
-            override fun onResponseReady(generic: Trip?) {
-                tripMutableLiveData.value = generic
-            }
-
-        })
     }
 
     fun getTrip(tripId: String) {
@@ -79,11 +70,21 @@ class TripViewModel : ViewModel() {
     }
 
     fun checkIfUserExists(user: String) {
-        userLiveData = tripRepository.checkIfUserExistsFirebase(user)
+        tripRepository.checkIfUserExistsFirebase(user, object:GenericCallback<Boolean>{
+            override fun onResponseReady(generic: Boolean) {
+                userLiveData.value = generic
+            }
+
+        })
     }
 
     fun addNewTrip(trip: Trip, context: Context) {
-        newTripLiveData = tripRepository.addNewTripToFirebase(trip, context)
+        tripRepository.addNewTripToFirebase(trip, context, object: GenericCallback<List<TripState>> {
+            override fun onResponseReady(generic: List<TripState>) {
+                newTripLiveData.value = generic
+            }
+
+        })
     }
 
     fun getParticipants(tripId: String) {
@@ -109,9 +110,5 @@ class TripViewModel : ViewModel() {
             }
 
         })
-    }
-
-    fun removeListeners() {
-        tripRepository.removeListenersFirebase()
     }
 }

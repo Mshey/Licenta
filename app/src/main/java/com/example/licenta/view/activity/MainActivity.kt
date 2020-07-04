@@ -84,10 +84,6 @@ class MainActivity : AppCompatActivity() {
                         R.id.createNewTripFragment -> navController.navigate(R.id.action_createNewTripFragment_to_futureTripsFragment)
                         R.id.mapFragment -> navController.navigate(R.id.action_mapFragment_to_futureTripsFragment)
                     }
-                NavEvent.Destination.PAST ->
-                    when (navController.currentDestination!!.id) {
-                        R.id.mapFragment -> navController.navigate(R.id.action_mapFragment_to_pastTripsFragment)
-                    }
                 NavEvent.Destination.CREATE ->
                     when (navController.currentDestination!!.id) {
                         R.id.futureTripsFragment -> navController.navigate(R.id.action_futureTripsFragment_to_createNewTripFragment)
@@ -100,8 +96,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 NavEvent.Destination.MAP ->
                     when (navController.currentDestination!!.id) {
-//                        R.id.loginFragment -> navController.navigate(R.id.action_loginFragment_to_mapFragment)
-                        R.id.futureTripsFragment -> navController.navigate(R.id.action_futureTripsFragment_to_mapFragment)
                         R.id.tripDetailsFragment -> navController.navigate(R.id.action_tripDetailsFragment_to_mapFragment)
                     }
             }

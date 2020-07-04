@@ -1,25 +1,37 @@
 package com.example.licenta.viewmodel
 
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.licenta.model.GenericCallback
 import com.example.licenta.model.RegistrationState
 import com.example.licenta.model.repository.AuthenticationRepository
 
 
 class AuthenticationViewModel : ViewModel() {
-    var isUserAuthenticatedLiveData: LiveData<Boolean>? = null
-    var loginLiveData: LiveData<Boolean>? = null
-    var registerLiveData: LiveData<RegistrationState>? = null
-    var changePasswordLiveData: LiveData<Boolean>? = null
-    var deleteAccountLiveData: LiveData<Boolean>? = null
+    private val authenticationRepository = AuthenticationRepository.getInstance()
+
+    var isUserAuthenticatedLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    var loginLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    var registerLiveData: MutableLiveData<RegistrationState> = MutableLiveData()
+    var changePasswordLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    var deleteAccountLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     fun checkIfUserIsAuthenticated() {
-        isUserAuthenticatedLiveData =
-            AuthenticationRepository.getInstance().checkIfUserIsAuthenticatedInFirebase()
+        authenticationRepository.checkIfUserIsAuthenticatedInFirebase(object :
+            GenericCallback<Boolean> {
+            override fun onResponseReady(generic: Boolean) {
+                isUserAuthenticatedLiveData.value = generic
+            }
+
+        })
     }
 
     fun login(email: String, password: String) {
-        loginLiveData = AuthenticationRepository.getInstance().loginFirebase(email, password)
+        authenticationRepository.loginFirebase(email, password, object : GenericCallback<Boolean?> {
+            override fun onResponseReady(generic: Boolean?) {
+                loginLiveData.value = generic
+            }
+        })
     }
 
     fun register(
@@ -29,16 +41,33 @@ class AuthenticationViewModel : ViewModel() {
         confirmPassword: String,
         acceptedTerms: Boolean
     ) {
-        registerLiveData = AuthenticationRepository.getInstance()
-            .registerFirebase(email, username, password, confirmPassword, acceptedTerms)
+        authenticationRepository.registerFirebase(
+            email,
+            username,
+            password,
+            confirmPassword,
+            acceptedTerms,
+            object : GenericCallback<RegistrationState> {
+                override fun onResponseReady(generic: RegistrationState) {
+                    registerLiveData.value = generic
+                }
+            })
     }
 
     fun changePassword(oldPassword: String, newPassword: String) {
-        changePasswordLiveData = AuthenticationRepository.getInstance()
-            .changePasswordFirebase(oldPassword, newPassword)
+        authenticationRepository
+            .changePasswordFirebase(oldPassword, newPassword, object : GenericCallback<Boolean> {
+                override fun onResponseReady(generic: Boolean) {
+                    changePasswordLiveData.value = generic
+                }
+            })
     }
 
-    fun deleteAccount(password: String){
-        deleteAccountLiveData = AuthenticationRepository.getInstance().deleteAccountFirebase(password)
+    fun deleteAccount(password: String) {
+        authenticationRepository.deleteAccountFirebase(password, object : GenericCallback<Boolean> {
+            override fun onResponseReady(generic: Boolean) {
+                deleteAccountLiveData.value = generic
+            }
+        })
     }
 }

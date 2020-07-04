@@ -103,21 +103,12 @@ class CreateNewTripFragment : Fragment() {
         )
         editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
         editText.addTextChangedListener(object : TextWatcher {
-            var ignoreChange = false
+//            var ignoreChange = false
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                if (!ignoreChange) {
-                    ignoreChange = true
+//                if (!ignoreChange) {
+//                    ignoreChange = true
                     tripViewModel.checkIfUserExists(p0.toString())
-                    tripViewModel.userLiveData?.observe(viewLifecycleOwner, Observer { t ->
-                        if (t) {
-                            participantsEditText.add(editText)
-                        } else {
-                            participantsEditText.remove(editText)
-                            editText.error = "User does not exist!"
-                        }
-                        ignoreChange = false
-                    })
-                }
+//                }
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -127,6 +118,15 @@ class CreateNewTripFragment : Fragment() {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 //NOP
             }
+        })
+        tripViewModel.userLiveData.observe(viewLifecycleOwner, Observer { t ->
+            if (t) {
+                participantsEditText.add(editText)
+            } else {
+                participantsEditText.remove(editText)
+                editText.error = "User does not exist!"
+            }
+//            ignoreChange = false
         })
         horizontalLinearLayout.addView(editText)
 
@@ -179,7 +179,7 @@ class CreateNewTripFragment : Fragment() {
             )
 
             tripViewModel.addNewTrip(trip, requireContext())
-            tripViewModel.newTripLiveData?.observe(
+            tripViewModel.newTripLiveData.observe(
                 viewLifecycleOwner,
                 Observer {
                     if (it.isNotEmpty()) {
